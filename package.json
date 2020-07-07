@@ -1,0 +1,32 @@
+{
+  "name": "knollbot",
+  "version": "1.0.0",
+  "description": "let a robot knoll",
+  "main": "index.js",
+  "dependencies": {
+    "matter-js": "^0.14.2"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "source-map-loader": "^1.0.1",
+    "typescript": "^3.9.6",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yamaton/knollbot.git"
+  },
+  "keywords": [
+    "knolling"
+  ],
+  "author": "Yamato Matsuoka",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yamaton/knollbot/issues"
+  },
+  "homepage": "https://github.com/yamaton/knollbot#readme"
+}

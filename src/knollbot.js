@@ -15,8 +15,10 @@ var Engine = Matter.Engine,
 // create an engine
 var engine = Engine.create();
 var world = engine.world;
+// disable gravity
 world.gravity.y = 0.0;
 var runner = Runner.create();
+
 
 const ScreenWidth = 800;
 const ScreenHeight = 600;
@@ -32,27 +34,27 @@ var render = Render.create({
     options: {
         width: ScreenWidth,
         height: ScreenHeight,
-        showAngleIndicator: true,
+        // showAngleIndicator: true,
         showVelocity: true,
     },
 });
 
-// create two boxes and a ground
+// create two boxes
 const bodyOptions = {
     inertia: Infinity,
     frictionAir: 0.01,
     friction: 0.1,
 }
-var boxA = Bodies.rectangle(100, 200, 80, 80, bodyOptions);
-var boxB = Bodies.rectangle(250, 250, 80, 80, bodyOptions);
-var boxC = Bodies.rectangle(450, 300, 80, 80, bodyOptions);
-// Body.applyForce(boxB, boxB.position, { x: 0.4, y: -0.1 });
+const NumBoxes = 5;
+var boxes = Array(NumBoxes);
+for (let i = 0; i < NumBoxes; i++) {
+    const h = Math.floor(Math.random() * ScreenHeight + 1);
+    const w = Math.floor(Math.random() * ScreenWidth + 1);
+    boxes[i] = Bodies.rectangle(h, w, 80, 80, bodyOptions);
+}
 
 
-// Body.applyForce(boxB, boxB.position, {x: force.x, y: force.y});
-
-
-// walls
+// surrounding wall
 const wallOptions = {
     isStatic: true,
     friction: 0.3,
@@ -62,6 +64,7 @@ var wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight, ScreenWidth, Wa
 var wallRight = Bodies.rectangle(ScreenWidth, ScreenHeightHalf, WallThickness * 0.2, ScreenHeight, { isStatic: true });
 var wallLeft = Bodies.rectangle(0, ScreenHeightHalf, - WallThickness * 0.2, ScreenHeight, { isStatic: true });
 
+
 // mouse and constraint
 var mouse = Mouse.create(render.canvas);
 var mouseConstraint = MouseConstraint.create(engine, {
@@ -70,18 +73,21 @@ var mouseConstraint = MouseConstraint.create(engine, {
         stiffness: 0.2,
         render: {
             visible: false
-        }
-    }
+        },
+    },
 });
 
 
 // add all of the bodies to the world
-World.add(world, [boxA, boxB, boxC, wallTop, wallBottom, wallRight, wallLeft, mouseConstraint]);
+var elements = boxes.concat([wallTop, wallBottom, wallRight, wallLeft, mouseConstraint]);
+World.add(world, elements);
 
 
 var counter = 0;
 Events.on(engine, 'beforeUpdate', function (event) {
     counter += 1;
+    let boxA = boxes[0];
+    let boxB = boxes[1];
     const dist = Vector.magnitude(Vector.sub(boxA.position, boxB.position));
     const mag = 1 / dist / dist;
     var fBtoA = Vector.mult(Vector.normalise(Vector.sub(boxA.position, boxB.position)), mag);
@@ -94,5 +100,4 @@ Events.on(engine, 'beforeUpdate', function (event) {
 // Engine.run(engine);
 Runner.run(runner, engine);
 
-render.mouse = mouse;
 Render.run(render);

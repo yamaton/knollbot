@@ -1,4 +1,4 @@
-import * as Matter from "matter-js"
+// import * as Matter from "matter-js"
 
 // module aliases
 var Engine = Matter.Engine,
@@ -48,7 +48,7 @@ const bodyOptions = {
     friction: 0.1,
 }
 const NumBoxes = 5;
-var boxes = Array(NumBoxes);
+var boxes = Array<Matter.Body>(NumBoxes);
 for (let i = 0; i < NumBoxes; i++) {
     const h = Math.floor(Math.random() * ScreenHeight + 1);
     const w = Math.floor(Math.random() * ScreenWidth + 1);
@@ -71,6 +71,9 @@ var wallLeft = Bodies.rectangle(0, ScreenHeightHalf, - WallThickness * 0.2, Scre
 var mouse = Mouse.create(render.canvas);
 var constraint = Constraint.create(
     {
+        // Must define pointA and pointB unlike IConstraintDefinition interface
+        pointA: mouse.position,
+        pointB: { x: 0, y: 0 },
         stiffness: 0.2,
         render: {
             visible: false,
@@ -82,9 +85,9 @@ var mouseConstraint = MouseConstraint.create(engine, {
     constraint: constraint,
 });
 
-// add all of the bodies to the world
-var elements = boxes.concat([wallTop, wallBottom, wallRight, wallLeft, mouseConstraint]);
-World.add(world, elements);
+// add boxes, walls, and mouse constraints
+World.add(world, [...boxes, wallTop, wallBottom, wallRight, wallLeft]);
+World.add(world, mouseConstraint);
 
 
 var counter = 0;
@@ -101,7 +104,7 @@ Events.on(engine, 'beforeUpdate', function (event) {
 });
 
 
-// Engine.run(engine);
+// equilvalent to Engine.run(engine)
 Runner.run(runner, engine);
 
 Render.run(render);

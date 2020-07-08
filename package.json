@@ -7,6 +7,7 @@
     "matter-js": "^0.14.2"
   },
   "devDependencies": {
+    "@types/matter-js": "^0.14.4",
     "awesome-typescript-loader": "^5.2.1",
     "source-map-loader": "^1.0.1",
     "typescript": "^3.9.6",

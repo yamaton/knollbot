@@ -1,5 +1,3 @@
-// import * as Matter from "matter-js"
-
 // module aliases
 var Engine = Matter.Engine,
     Render = Matter.Render,
@@ -27,7 +25,7 @@ const ScreenHeight = 600;
 const ScreenWidthHalf = Math.floor(ScreenWidth / 2);
 const ScreenHeightHalf = Math.floor(ScreenHeight / 2);
 const WallThickness = 200;
-
+const SquareSize = 50;
 
 // create a renderer
 var render = Render.create({
@@ -44,15 +42,15 @@ var render = Render.create({
 // create two boxes
 const bodyOptions = {
     inertia: Infinity,
-    frictionAir: 0.01,
-    friction: 0.1,
+    frictionAir: 0.2,
+    friction: 0.01,
 }
 const NumBoxes = 5;
 var boxes = Array<Matter.Body>(NumBoxes);
 for (let i = 0; i < NumBoxes; i++) {
     const h = Math.floor(Math.random() * ScreenHeight + 1);
     const w = Math.floor(Math.random() * ScreenWidth + 1);
-    boxes[i] = Bodies.rectangle(h, w, 80, 80, bodyOptions);
+    boxes[i] = Bodies.rectangle(h, w, SquareSize, SquareSize, bodyOptions);
 }
 
 
@@ -93,18 +91,25 @@ World.add(world, mouseConstraint);
 var counter = 0;
 Events.on(engine, 'beforeUpdate', function (event) {
     counter += 1;
-    let boxA = boxes[0];
-    let boxB = boxes[1];
-    const dist = Vector.magnitude(Vector.sub(boxA.position, boxB.position));
-    const mag = 1 / dist / dist;
-    var fBtoA = Vector.mult(Vector.normalise(Vector.sub(boxA.position, boxB.position)), mag);
-    var fAtoB = Vector.mult(Vector.normalise(Vector.sub(boxB.position, boxA.position)), mag);
-    Body.applyForce(boxB, boxB.position, fBtoA);
-    Body.applyForce(boxA, boxA.position, fAtoB);
+    let src = boxes[0];
+    let tgt = boxes[1];
+    let srcRightmost = utils.rightmostPoint(src.vertices);
+    let tgtPos = utils.closestPointDirX(tgt.vertices, srcRightmost.x);
+    let dist = Math.abs(tgtPos.x - srcRightmost.x);
+    let mag = 0.005;
+    let dirX = 0.0;
+    if (dist < 20) {
+        if (tgtPos.x > srcRightmost.x) {
+            dirX = -1.0
+         } else {
+            dirX = 1.0;
+        }
+    };
+    let forceOnTgt = {x: mag * dirX * dist, y: 0};
+    Body.applyForce(tgt, tgtPos, forceOnTgt);
 });
 
 
 // equilvalent to Engine.run(engine)
 Runner.run(runner, engine);
-
 Render.run(render);

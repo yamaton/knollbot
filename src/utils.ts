@@ -1,4 +1,3 @@
-// import * as Matter from "matter-js";
 namespace utils {
     export const arrMax = (xs: number[]): number => xs.reduce((acc, x) => Math.max(acc, x), -Infinity);
     export const arrMin = (xs: number[]): number => xs.reduce((acc, x) => Math.min(acc, x), Infinity);
@@ -59,4 +58,27 @@ namespace utils {
         return vectorMean(arrMinBy(points, p => p.x));
     }
 
+    export const distHoriz = (pointA: Vector, pointB: Vector): number => {
+        return Math.abs(pointA.x - pointB.x);
+    }
+
+    export const cloestPointPairX = (body1: Matter.Body, body2:Matter.Body): [Vector, Vector, number] => {
+        let left1 = leftmostPoint(body1.vertices);
+        let right1 = rightmostPoint(body1.vertices);
+        let left2 = leftmostPoint(body2.vertices);
+        let right2 = rightmostPoint(body2.vertices);
+        let res: [Vector, Vector, number] = [left1, right1, Infinity];
+        let dist = Infinity;
+        for (let p1 of [left1, right1]) {
+            for (let p2 of [left2, right2]) {
+                let d = distHoriz(p1, p2);
+                if (d < dist) {
+                    dist = d;
+                    res = [p1, p2, dist];
+                }
+            }
+        }
+        return res;
+    }
 }
+

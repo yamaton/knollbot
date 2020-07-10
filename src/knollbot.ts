@@ -20,6 +20,13 @@ world.gravity.y = 0.0;
 var runner = Runner.create();
 
 
+// --------------------------------------
+//   Long-distance action 
+const ForceScale = 0.0005;
+const ForceRange = 25;  // in pixels
+
+
+// --------------------------------------
 const ScreenWidth = 800;
 const ScreenHeight = 600;
 const ScreenWidthHalf = Math.floor(ScreenWidth / 2);
@@ -91,22 +98,22 @@ World.add(world, mouseConstraint);
 var counter = 0;
 Events.on(engine, 'beforeUpdate', function (event) {
     counter += 1;
-    let src = boxes[0];
-    let tgt = boxes[1];
-    let srcRightmost = utils.rightmostPoint(src.vertices);
-    let tgtPos = utils.closestPointDirX(tgt.vertices, srcRightmost.x);
-    let dist = Math.abs(tgtPos.x - srcRightmost.x);
-    let mag = 0.005;
-    let dirX = 0.0;
-    if (dist < 20) {
-        if (tgtPos.x > srcRightmost.x) {
-            dirX = -1.0
-         } else {
-            dirX = 1.0;
+    for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+            let src = boxes[i];
+            let tgt = boxes[j];
+            let [posSrc, posTgt, dist] = utils.cloestPointPairX(src, tgt);
+            let coeffX = 0.0;
+            if (dist < ForceRange) {
+                coeffX = (posSrc.x < posTgt.x) ? -1 : 1;
+                coeffX *= ForceScale;
+            };
+            let forceOnTgt = {x: coeffX * dist, y: 0};
+            let forceOnSrc = {x: -forceOnTgt.x, y: -forceOnTgt.y};
+            Body.applyForce(tgt, posTgt, forceOnTgt);
+            Body.applyForce(src, posSrc, forceOnSrc);
         }
-    };
-    let forceOnTgt = {x: mag * dirX * dist, y: 0};
-    Body.applyForce(tgt, tgtPos, forceOnTgt);
+    }
 });
 
 

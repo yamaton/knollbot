@@ -25,7 +25,7 @@ namespace utils {
         return arrMetaBy(xs, f, arrMax);
     }
 
-    export const arrMinBy = <T>(xs: T[], f: (a: T) => number): T[] => {
+    export const arrMinBy = <T>({ xs, f }: { xs: T[]; f: (a: T) => number; }): T[] => {
         return arrMetaBy(xs, f, arrMin);
     }
 
@@ -35,11 +35,11 @@ namespace utils {
         return { x: x, y: y };
     }
 
-    export const closestPointDirX = (points: Vector[], refPosX: number) => {
+    const closestPointDirMeta = (xs: Vector[], ref: number, f: (a: Vector) => number): Vector => {
         let minDist = Infinity;
         let res: Vector[] = [];
-        for (let p of points) {
-            let d = Math.abs(p.x - refPosX)
+        for (let p of xs) {
+            let d = Math.abs(f(p) - ref)
             if (d == minDist) {
                 res.push(p);
             } else if (d < minDist) {
@@ -50,28 +50,49 @@ namespace utils {
         return vectorMean(res);
     }
 
+    export const closestPointDirX = (xs: Vector[], ref: number): Vector => {
+        return closestPointDirMeta(xs, ref, p => p.x);
+    }
+
+    export const closestPointDirY = (xs: Vector[], ref: number): Vector => {
+        return closestPointDirMeta(xs, ref, p => p.y);
+    }
+
     export const rightmostPoint = (points: Vector[]): Vector => {
         return vectorMean(arrMaxBy({ xs: points, f: p => p.x }));
     }
 
     export const leftmostPoint = (points: Vector[]): Vector => {
-        return vectorMean(arrMinBy(points, p => p.x));
+        return vectorMean(arrMinBy({ xs: points, f: p => p.x }));
+    }
+
+    export const topmostPoint = (points: Vector[]): Vector => {
+        return vectorMean(arrMinBy({ xs: points, f: p => p.y }));
+    }
+
+    export const bottommostPoint = (points: Vector[]): Vector => {
+        return vectorMean(arrMaxBy({ xs: points, f: p => p.y }));
     }
 
     export const distHoriz = (pointA: Vector, pointB: Vector): number => {
         return Math.abs(pointA.x - pointB.x);
     }
 
-    export const cloestPointPairX = (body1: Matter.Body, body2:Matter.Body): [Vector, Vector, number] => {
-        let left1 = leftmostPoint(body1.vertices);
-        let right1 = rightmostPoint(body1.vertices);
-        let left2 = leftmostPoint(body2.vertices);
-        let right2 = rightmostPoint(body2.vertices);
-        let res: [Vector, Vector, number] = [left1, right1, Infinity];
+    export const distVert = (pointA: Vector, pointB: Vector): number => {
+        return Math.abs(pointA.y - pointB.y);
+    }
+
+
+    const cloestPointMeta = (body1: Matter.Body, body2: Matter.Body, edgeA: (vs: Vector[]) => Vector, edgeB: (vs: Vector[]) => Vector, distFunc: (v1: Vector, v2: Vector) => number): [Vector, Vector, number] => {
+        let one1 = edgeA(body1.vertices);
+        let another1 = edgeB(body1.vertices);
+        let one2 = edgeA(body2.vertices);
+        let another2 = edgeB(body2.vertices);
+        let res: [Vector, Vector, number] = [one1, another1, Infinity];
         let dist = Infinity;
-        for (let p1 of [left1, right1]) {
-            for (let p2 of [left2, right2]) {
-                let d = distHoriz(p1, p2);
+        for (let p1 of [one1, another1]) {
+            for (let p2 of [one2, another2]) {
+                let d = distFunc(p1, p2);
                 if (d < dist) {
                     dist = d;
                     res = [p1, p2, dist];
@@ -80,5 +101,13 @@ namespace utils {
         }
         return res;
     }
-}
 
+    export const cloestPointPairX = (body1: Matter.Body, body2: Matter.Body): [Vector, Vector, number] => {
+        return cloestPointMeta(body1, body2, leftmostPoint, rightmostPoint, distHoriz);
+    }
+
+    export const cloestPointPairY = (body1: Matter.Body, body2: Matter.Body): [Vector, Vector, number] => {
+        return cloestPointMeta(body1, body2, topmostPoint, bottommostPoint, distVert);
+    }
+
+}

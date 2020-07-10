@@ -114,6 +114,23 @@ Events.on(engine, 'beforeUpdate', function (event) {
             Body.applyForce(src, posSrc, forceOnSrc);
         }
     }
+
+    for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+            let src = boxes[i];
+            let tgt = boxes[j];
+            let [posSrc, posTgt, dist] = utils.cloestPointPairY(src, tgt);
+            let coeffX = 0.0;
+            if (dist < ForceRange) {
+                coeffX = (posSrc.y < posTgt.y) ? -1 : 1;
+                coeffX *= ForceScale;
+            };
+            let forceOnTgt = {x: 0, y: coeffX * dist};
+            let forceOnSrc = {x: -forceOnTgt.x, y: -forceOnTgt.y};
+            Body.applyForce(tgt, posTgt, forceOnTgt);
+            Body.applyForce(src, posSrc, forceOnSrc);
+        }
+    }
 });
 
 

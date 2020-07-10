@@ -38,8 +38,9 @@ const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 
 // --------------------------------------
 // Object parameters
-const NumBoxes = 15;
-// --
+const NumBoxes = 30;
+const allSquare = false;
+
 const MinSizeX = 30;
 const MaxSizeX = 70;
 const MinSizeY = 30;
@@ -47,9 +48,11 @@ const MaxSizeY = 70;
 
 // --------------------------------------
 // Physics parameters
-const FrictionAir = 0.2;
+const FrictionAir = 0.3;
 const Friction = 0.01;
+const WallFriction = 0.01;
 const AntiGravityConst = 100.0;
+const PokeScale = 1.0;
 
 
 // create a renderer
@@ -74,7 +77,10 @@ const bodyOptions = {
 var boxes = Array<Matter.Body>(NumBoxes);
 for (let i = 0; i < NumBoxes; i++) {
     const rectWidth = utils.randRange(MinSizeX, MaxSizeX);
-    const rectHeight = utils.randRange(MinSizeY, MaxSizeY);
+    let rectHeight = rectWidth;
+    if (!allSquare) {
+        rectHeight = utils.randRange(MinSizeY, MaxSizeY);
+    }
     const offsetX = WallOffset + rectWidth / 2;
     const offsetY = WallOffset + rectHeight / 2;
     const x = utils.randRange(offsetX, ScreenWidth - offsetX);
@@ -86,7 +92,7 @@ for (let i = 0; i < NumBoxes; i++) {
 // surrounding wall
 const wallOptions = {
     isStatic: true,
-    friction: 0.3,
+    friction: WallFriction,
 }
 
 var wallTop = Bodies.rectangle(ScreenWidthHalf, -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
@@ -133,7 +139,7 @@ Events.on(engine, 'beforeUpdate', function (event) {
             // tiny performance improvement
             if (src.isStatic && tgt.isStatic) continue;
 
-            if (counter < 300) {
+            if (counter < 120) {
                 // repulsive 1/r^2 force
                 let d = utils.distEuclid(src.position, tgt.position);
                 let antiGravityMag = AntiGravityConst / d ** 2;
@@ -145,6 +151,11 @@ Events.on(engine, 'beforeUpdate', function (event) {
                 };
                 Body.applyForce(tgt, tgt.position, forceAntiGravity);
                 Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
+
+
+                // random poking
+                Body.applyForce(tgt, tgt.position, { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
+                Body.applyForce(src, src.position, { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
 
             } else {
                 // long-range magnet interaction

@@ -82,6 +82,9 @@ namespace utils {
         return Math.abs(pointA.y - pointB.y);
     }
 
+    export const distEuclid = (pointA: Vector, pointB: Vector): number => {
+        return Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
+    }
 
     const cloestPointMeta = (body1: Matter.Body, body2: Matter.Body, edgeA: (vs: Vector[]) => Vector, edgeB: (vs: Vector[]) => Vector, distFunc: (v1: Vector, v2: Vector) => number): [Vector, Vector, number] => {
         let one1 = edgeA(body1.vertices);
@@ -115,5 +118,25 @@ namespace utils {
         let a = Math.floor(lo);
         let b = Math.floor(hi);
         return a + Math.floor(Math.random() * (b - a))
+    }
+
+    export const unitVec = (from: Vector, to: Vector): Vector => {
+        let d = distEuclid(from, to)
+        return {
+            x: (to.x - from.x) / d,
+            y: (to.y - from.y) / d,
+        }
+    }
+
+    export const normalize = (v: Vector): Vector => {
+        let norm = Math.hypot(v.x, v.y);
+        return {
+            x: v.x / norm,
+            y: v.y / norm,
+        }
+    }
+
+    export const negate = (v: Vector): Vector => {
+        return { x: -v.x, y: -v.y };
     }
 }

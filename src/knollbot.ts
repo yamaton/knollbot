@@ -34,11 +34,12 @@ const ScreenHeightHalf = Math.floor(ScreenHeight / 2);
 const WallThickness = 200;
 const WallMargin = 100;
 const WallVisible = 5;
-const WallOffset = Math.floor(WallThickness/2) - WallVisible;
+const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 
 // --------------------------------------
 // Object parameters
 const NumBoxes = 15;
+// --
 const MinSizeX = 30;
 const MaxSizeX = 70;
 const MinSizeY = 30;
@@ -48,6 +49,7 @@ const MaxSizeY = 70;
 // Physics parameters
 const FrictionAir = 0.2;
 const Friction = 0.01;
+const AntiGravityConst = 100.0;
 
 
 // create a renderer
@@ -87,7 +89,7 @@ const wallOptions = {
     friction: 0.3,
 }
 
-var wallTop = Bodies.rectangle(ScreenWidthHalf,  -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
+var wallTop = Bodies.rectangle(ScreenWidthHalf, -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
 var wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight + WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
 var wallRight = Bodies.rectangle(ScreenWidth + WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
 var wallLeft = Bodies.rectangle(- WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
@@ -124,32 +126,46 @@ Events.on(engine, 'beforeUpdate', function (event) {
             let src = boxes[i];
             let tgt = boxes[j];
 
-            // repulsive 1/r^2 force
-            // TODO...
 
-            // long-range magnet interaction
-            let [posSrcX, posTgtX, distX] = utils.cloestPointPairX(src, tgt);
-            let [posSrcY, posTgtY, distY] = utils.cloestPointPairY(src, tgt);
-            let coeffX = 0.0;
-            if (distX < ForceRange) {
-                coeffX = (posSrcX.x < posTgtX.x) ? -1 : 1;
-                coeffX *= ForceScale;
-            };
-            let coeffY = 0.0;
-            if (distY < ForceRange) {
-                coeffY = (posSrcY.y < posTgtY.y) ? -1 : 1;
-                coeffY *= ForceScale;
-            };
-            let forceOnTgtX = {x: coeffX * distX, y: 0};
-            let forceOnTgtY = {x: 0, y: coeffY * distY};
-            let forceOnSrcX = {x: -forceOnTgtX.x, y: -forceOnTgtX.y};
-            let forceOnSrcY = {x: -forceOnTgtY.x, y: -forceOnTgtY.y};
+            if (counter < 600) {
+                // repulsive 1/r^2 force
+                let d = utils.distEuclid(src.position, tgt.position);
+                let antiGravityMag = AntiGravityConst / d ** 2;
 
-            // forces act on different points
-            Body.applyForce(tgt, posTgtX, forceOnTgtX);
-            Body.applyForce(src, posSrcX, forceOnSrcX);
-            Body.applyForce(tgt, posTgtY, forceOnTgtY);
-            Body.applyForce(src, posSrcY, forceOnSrcY);
+                let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
+                let forceAntiGravity = {
+                    x: antiGravityMag * unitSrcToTgt.x,
+                    y: antiGravityMag * unitSrcToTgt.y,
+                };
+                if (i == 0 && j == 1 && counter % 60 == 0) {
+                    console.log("counter: ", counter);
+                }
+                Body.applyForce(tgt, tgt.position, forceAntiGravity);
+                Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
+
+            } else {
+                // long-range magnet interaction
+                let [posSrcX, posTgtX, distX] = utils.cloestPointPairX(src, tgt);
+                let [posSrcY, posTgtY, distY] = utils.cloestPointPairY(src, tgt);
+                let coeffX = 0.0;
+                if (distX < ForceRange) {
+                    coeffX = (posSrcX.x < posTgtX.x) ? -1 : 1;
+                    coeffX *= ForceScale;
+                };
+                let coeffY = 0.0;
+                if (distY < ForceRange) {
+                    coeffY = (posSrcY.y < posTgtY.y) ? -1 : 1;
+                    coeffY *= ForceScale;
+                };
+                let forceOnTgtX = { x: coeffX * distX, y: 0 };
+                let forceOnTgtY = { x: 0, y: coeffY * distY };
+
+                // forces act on different points
+                Body.applyForce(tgt, posTgtX, forceOnTgtX);
+                Body.applyForce(src, posSrcX, utils.negate(forceOnTgtX));
+                Body.applyForce(tgt, posTgtY, forceOnTgtY);
+                Body.applyForce(src, posSrcY, utils.negate(forceOnTgtY));
+            }
         }
     }
 });

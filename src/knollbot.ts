@@ -140,26 +140,28 @@ Events.on(engine, 'beforeUpdate', function (event) {
             if (src.isStatic && tgt.isStatic) continue;
 
             // repulsive 1/r^2 force
-            let d = utils.distEuclid(src.position, tgt.position);
-            let antiGravityMag = AntiGravityConst / d ** 2;
+            let forceAntiGravity = { x: 0, y: 0 };
+            if (!src.isSensor && !tgt.isStatic) {
+                let d = utils.distEuclid(src.position, tgt.position);
+                let antiGravityMag = AntiGravityConst / d ** 2;
+                let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
+                forceAntiGravity = {
+                    x: antiGravityMag * unitSrcToTgt.x,
+                    y: antiGravityMag * unitSrcToTgt.y,
+                };
+            }
 
-            let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
-            let forceAntiGravity = {
-                x: antiGravityMag * unitSrcToTgt.x,
-                y: antiGravityMag * unitSrcToTgt.y,
-            };
-
-            if (counter < 120) {
+            if (counter < 60) {
                 Body.applyForce(tgt, tgt.position, forceAntiGravity);
                 Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
 
                 // random poking
                 Body.applyForce(tgt, tgt.position, { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
                 Body.applyForce(src, src.position, { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
+
             } else {
                 // long-range magnet interaction
                 let [posSrcX, posTgtX, distX] = utils.cloestPointPairX(src, tgt);
-                let [posSrcY, posTgtY, distY] = utils.cloestPointPairY(src, tgt);
                 let coeffX = 0.0;
                 let forceOnTgtX = { x: forceAntiGravity.x, y: 0 };
 
@@ -169,6 +171,7 @@ Events.on(engine, 'beforeUpdate', function (event) {
                     forceOnTgtX = { x: coeffX * distX, y: 0 };
                 };
 
+                let [posSrcY, posTgtY, distY] = utils.cloestPointPairY(src, tgt);
                 let coeffY = 0.0;
                 let forceOnTgtY = { x: 0, y: forceAntiGravity.y };
 

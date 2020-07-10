@@ -1,5 +1,5 @@
 // module aliases
-var Engine = Matter.Engine,
+const Engine = Matter.Engine,
     Render = Matter.Render,
     Runner = Matter.Runner,
     Composites = Matter.Composites,
@@ -13,17 +13,12 @@ var Engine = Matter.Engine,
     Body = Matter.Body;
 
 // create an engine
-var engine = Engine.create();
-var world = engine.world;
+const engine = Engine.create();
+const world = engine.world;
 // disable gravity
 world.gravity.y = 0.0;
-var runner = Runner.create();
+const runner = Runner.create();
 
-
-// --------------------------------------
-//   Long-distance action 
-const ForceScale = 0.0005;
-const ForceRange = 25;  // in pixels
 
 // --------------------------------------
 // Screen parameters
@@ -54,9 +49,14 @@ const WallFriction = 0.01;
 const AntiGravityConst = 100.0;
 const PokeScale = 1.0;
 
+// Alignment force
+const ForceScale = 0.0005;
+const ForceRange = 20;  // in pixels
 
+
+// --------------------------------------
 // create a renderer
-var render = Render.create({
+const render = Render.create({
     element: document.body,
     engine: engine,
     options: {
@@ -74,7 +74,7 @@ const bodyOptions = {
     friction: Friction,
 }
 
-var boxes = Array<Matter.Body>(NumBoxes);
+const boxes = Array<Matter.Body>(NumBoxes);
 for (let i = 0; i < NumBoxes; i++) {
     const rectWidth = utils.randRange(MinSizeX, MaxSizeX);
     let rectHeight = rectWidth;
@@ -95,15 +95,15 @@ const wallOptions = {
     friction: WallFriction,
 }
 
-var wallTop = Bodies.rectangle(ScreenWidthHalf, -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
-var wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight + WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
-var wallLeft = Bodies.rectangle(- WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
-var wallRight = Bodies.rectangle(ScreenWidth + WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
+const wallTop = Bodies.rectangle(ScreenWidthHalf, -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
+const wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight + WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
+const wallLeft = Bodies.rectangle(- WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
+const wallRight = Bodies.rectangle(ScreenWidth + WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
 
 
 // mouse and constraint
-var mouse = Mouse.create(render.canvas);
-var constraint = Constraint.create(
+const mouse = Mouse.create(render.canvas);
+const constraint = Constraint.create(
     {
         // Must define pointA and pointB unlike IConstraintDefinition interface
         pointA: mouse.position,
@@ -114,13 +114,13 @@ var constraint = Constraint.create(
         },
     },
 );
-var mouseConstraint = MouseConstraint.create(engine, {
+const mouseConstraint = MouseConstraint.create(engine, {
     mouse: mouse,
     constraint: constraint,
 });
 
 // add boxes, walls, and mouse constraints
-let blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
+const blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
 World.add(world, blocks);
 World.add(world, mouseConstraint);
 

@@ -25,14 +25,30 @@ var runner = Runner.create();
 const ForceScale = 0.0005;
 const ForceRange = 25;  // in pixels
 
-
 // --------------------------------------
+// Screen parameters
 const ScreenWidth = 800;
 const ScreenHeight = 600;
 const ScreenWidthHalf = Math.floor(ScreenWidth / 2);
 const ScreenHeightHalf = Math.floor(ScreenHeight / 2);
 const WallThickness = 200;
-const SquareSize = 50;
+const WallMargin = 100;
+const WallVisible = 5;
+const WallOffset = Math.floor(WallThickness/2) - WallVisible;
+
+// --------------------------------------
+// Object parameters
+const NumBoxes = 5;
+const MinSizeX = 30;
+const MaxSizeX = 70;
+const MinSizeY = 30;
+const MaxSizeY = 70;
+
+// --------------------------------------
+// Physics parameters
+const FrictionAir = 0.2;
+const Friction = 0.01;
+
 
 // create a renderer
 var render = Render.create({
@@ -49,15 +65,19 @@ var render = Render.create({
 // create two boxes
 const bodyOptions = {
     inertia: Infinity,
-    frictionAir: 0.2,
-    friction: 0.01,
+    frictionAir: FrictionAir,
+    friction: Friction,
 }
-const NumBoxes = 5;
+
 var boxes = Array<Matter.Body>(NumBoxes);
 for (let i = 0; i < NumBoxes; i++) {
-    const h = Math.floor(Math.random() * ScreenHeight + 1);
-    const w = Math.floor(Math.random() * ScreenWidth + 1);
-    boxes[i] = Bodies.rectangle(h, w, SquareSize, SquareSize, bodyOptions);
+    const rectWidth = utils.randRange(MinSizeX, MaxSizeX);
+    const rectHeight = utils.randRange(MinSizeY, MaxSizeY);
+    const offsetX = WallOffset + rectWidth / 2;
+    const offsetY = WallOffset + rectHeight / 2;
+    const x = utils.randRange(offsetX, ScreenWidth - offsetX);
+    const y = utils.randRange(offsetY, ScreenHeight - offsetY);
+    boxes[i] = Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
 }
 
 
@@ -66,10 +86,11 @@ const wallOptions = {
     isStatic: true,
     friction: 0.3,
 }
-var wallTop = Bodies.rectangle(ScreenWidthHalf, 0, ScreenWidth, - WallThickness * 0.2, wallOptions);
-var wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight, ScreenWidth, WallThickness * 0.2, wallOptions);
-var wallRight = Bodies.rectangle(ScreenWidth, ScreenHeightHalf, WallThickness * 0.2, ScreenHeight, wallOptions);
-var wallLeft = Bodies.rectangle(0, ScreenHeightHalf, - WallThickness * 0.2, ScreenHeight, wallOptions);
+
+var wallTop = Bodies.rectangle(ScreenWidthHalf,  -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
+var wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight + WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
+var wallRight = Bodies.rectangle(ScreenWidth + WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
+var wallLeft = Bodies.rectangle(- WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
 
 
 // mouse and constraint

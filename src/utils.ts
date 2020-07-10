@@ -110,4 +110,10 @@ namespace utils {
         return cloestPointMeta(body1, body2, topmostPoint, bottommostPoint, distVert);
     }
 
+
+    export const randRange = (lo: number, hi: number): number => {
+        let a = Math.floor(lo);
+        let b = Math.floor(hi);
+        return a + Math.floor(Math.random() * (b - a))
+    }
 }

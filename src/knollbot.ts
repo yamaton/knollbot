@@ -91,8 +91,8 @@ const wallOptions = {
 
 var wallTop = Bodies.rectangle(ScreenWidthHalf, -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
 var wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight + WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
-var wallRight = Bodies.rectangle(ScreenWidth + WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
 var wallLeft = Bodies.rectangle(- WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
+var wallRight = Bodies.rectangle(ScreenWidth + WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
 
 
 // mouse and constraint
@@ -114,20 +114,26 @@ var mouseConstraint = MouseConstraint.create(engine, {
 });
 
 // add boxes, walls, and mouse constraints
-World.add(world, [...boxes, wallTop, wallBottom, wallRight, wallLeft]);
+let blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
+World.add(world, blocks);
 World.add(world, mouseConstraint);
 
 
 var counter = 0;
 Events.on(engine, 'beforeUpdate', function (event) {
     counter += 1;
-    for (let i = 0; i < boxes.length; i++) {
-        for (let j = i + 1; j < boxes.length; j++) {
-            let src = boxes[i];
-            let tgt = boxes[j];
+    for (let i = 0; i < blocks.length; i++) {
+        for (let j = i + 1; j < blocks.length; j++) {
+            if (i == 0 && j == 1 && counter % 60 == 0) {
+                console.log("counter: ", counter);
+            }
+            let src = blocks[i];
+            let tgt = blocks[j];
 
+            // tiny performance improvement
+            if (src.isStatic && tgt.isStatic) continue;
 
-            if (counter < 600) {
+            if (counter < 300) {
                 // repulsive 1/r^2 force
                 let d = utils.distEuclid(src.position, tgt.position);
                 let antiGravityMag = AntiGravityConst / d ** 2;
@@ -137,9 +143,6 @@ Events.on(engine, 'beforeUpdate', function (event) {
                     x: antiGravityMag * unitSrcToTgt.x,
                     y: antiGravityMag * unitSrcToTgt.y,
                 };
-                if (i == 0 && j == 1 && counter % 60 == 0) {
-                    console.log("counter: ", counter);
-                }
                 Body.applyForce(tgt, tgt.position, forceAntiGravity);
                 Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
 

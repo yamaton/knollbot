@@ -33,13 +33,13 @@ const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 
 // --------------------------------------
 // Object parameters
-const NumBoxes = 30;
+const NumBoxes = 5;
 const allSquare = false;
 
 const MinSizeX = 30;
-const MaxSizeX = 70;
+const MaxSizeX = 170;
 const MinSizeY = 30;
-const MaxSizeY = 70;
+const MaxSizeY = 170;
 
 // --------------------------------------
 // Physics parameters
@@ -143,7 +143,9 @@ Events.on(engine, 'beforeUpdate', function (event) {
             let forceAntiGravity = { x: 0, y: 0 };
             if (!src.isSensor && !tgt.isStatic) {
                 let d = utils.distEuclid(src.position, tgt.position);
-                let antiGravityMag = AntiGravityConst / d ** 2;
+                // characteristic size
+                let charSize =  0.5 * (Math.sqrt(src.area) + Math.sqrt(tgt.area));
+                let antiGravityMag = (d < 1.5 * charSize) ? AntiGravityConst / d ** 2 : 0;
                 let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
                 forceAntiGravity = {
                     x: antiGravityMag * unitSrcToTgt.x,

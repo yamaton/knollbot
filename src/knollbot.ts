@@ -142,15 +142,8 @@ Events.on(engine, 'beforeUpdate', function (event) {
             // repulsive 1/r^2 force
             let forceAntiGravity = { x: 0, y: 0 };
             if (!src.isSensor && !tgt.isStatic) {
-                let d = utils.distEuclid(src.position, tgt.position);
-                // characteristic size
-                let charSize =  0.5 * (Math.sqrt(src.area) + Math.sqrt(tgt.area));
-                let antiGravityMag = (d < 1.5 * charSize) ? AntiGravityConst / d ** 2 : 0;
-                let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
-                forceAntiGravity = {
-                    x: antiGravityMag * unitSrcToTgt.x,
-                    y: antiGravityMag * unitSrcToTgt.y,
-                };
+                forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
+                // forceAntiGravity = respulsion.antiGravityManhattan(AntiGravityConst, src, tgt);
             }
 
             if (counter < 60) {
@@ -162,6 +155,8 @@ Events.on(engine, 'beforeUpdate', function (event) {
                 Body.applyForce(src, src.position, { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
 
             } else {
+
+
                 // long-range magnet interaction
                 let [posSrcX, posTgtX, distX] = utils.cloestPointPairX(src, tgt);
                 let coeffX = 0.0;

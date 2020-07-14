@@ -78,7 +78,7 @@ namespace utils {
         return Math.abs(pointA.x - pointB.x);
     }
 
-    export const distVert = (pointA: Vector, pointB: Vector): number => {
+    export const distVerti = (pointA: Vector, pointB: Vector): number => {
         return Math.abs(pointA.y - pointB.y);
     }
 
@@ -110,7 +110,7 @@ namespace utils {
     }
 
     export const cloestPointPairY = (body1: Matter.Body, body2: Matter.Body): [Vector, Vector, number] => {
-        return cloestPointMeta(body1, body2, topmostPoint, bottommostPoint, distVert);
+        return cloestPointMeta(body1, body2, topmostPoint, bottommostPoint, distVerti);
     }
 
 

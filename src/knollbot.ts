@@ -128,11 +128,13 @@ World.add(world, mouseConstraint);
 var counter = 0;
 Events.on(engine, 'beforeUpdate', function (event) {
     counter += 1;
+    if (counter % 60 == 0) {
+        console.log("counter: ", counter);
+    }
+
     for (let i = 0; i < blocks.length; i++) {
         for (let j = i + 1; j < blocks.length; j++) {
-            if (i == 0 && j == 1 && counter % 60 == 0) {
-                console.log("counter: ", counter);
-            }
+
             let src = blocks[i];
             let tgt = blocks[j];
 
@@ -156,26 +158,21 @@ Events.on(engine, 'beforeUpdate', function (event) {
 
             } else {
 
-
                 // long-range magnet interaction
                 let [posSrcX, posTgtX, distX] = utils.cloestPointPairX(src, tgt);
-                let coeffX = 0.0;
                 let forceOnTgtX = { x: forceAntiGravity.x, y: 0 };
-
                 if (distX < ForceRange) {
-                    coeffX = (posSrcX.x < posTgtX.x) ? -1 : 1;
-                    coeffX *= ForceScale;
-                    forceOnTgtX = { x: coeffX * distX, y: 0 };
+                    let dir = (posSrcX.x < posTgtX.x) ? -1 : 1;
+                    let force = ForceScale * dir * distX;
+                    forceOnTgtX = { x: force, y: 0 };
                 };
 
                 let [posSrcY, posTgtY, distY] = utils.cloestPointPairY(src, tgt);
-                let coeffY = 0.0;
                 let forceOnTgtY = { x: 0, y: forceAntiGravity.y };
-
                 if (distY < ForceRange) {
-                    coeffY = (posSrcY.y < posTgtY.y) ? -1 : 1;
-                    coeffY *= ForceScale;
-                    forceOnTgtY = { x: 0, y: coeffY * distY };
+                    let dir = (posSrcY.y < posTgtY.y) ? -1 : 1;
+                    let force = ForceScale * dir * distY;
+                    forceOnTgtY = { x: 0, y: force };
                 };
 
                 // forces act on different points

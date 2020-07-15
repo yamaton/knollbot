@@ -114,10 +114,10 @@ namespace utils {
     }
 
 
-    export const randRange = (lo: number, hi: number): number => {
+    export const randRange = (lo: number, hi: number, unit: number=1): number => {
         let a = Math.floor(lo);
         let b = Math.floor(hi);
-        return a + Math.floor(Math.random() * (b - a))
+        return a + Math.floor(Math.random() * (b - a) / unit) * unit
     }
 
     export const unitVec = (from: Vector, to: Vector): Vector => {

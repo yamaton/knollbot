@@ -33,13 +33,14 @@ const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 
 // --------------------------------------
 // Object parameters
-const NumBoxes = 5;
+const NumBoxes = 3;
 const allSquare = false;
 
 const MinSizeX = 30;
 const MaxSizeX = 170;
 const MinSizeY = 30;
 const MaxSizeY = 170;
+const UnitSize = 16;
 
 // --------------------------------------
 // Physics parameters
@@ -76,10 +77,10 @@ const bodyOptions = {
 
 const boxes = Array<Matter.Body>(NumBoxes);
 for (let i = 0; i < NumBoxes; i++) {
-    const rectWidth = utils.randRange(MinSizeX, MaxSizeX);
+    const rectWidth = utils.randRange(MinSizeX, MaxSizeX, UnitSize);
     let rectHeight = rectWidth;
     if (!allSquare) {
-        rectHeight = utils.randRange(MinSizeY, MaxSizeY);
+        rectHeight = utils.randRange(MinSizeY, MaxSizeY, UnitSize);
     }
     const offsetX = WallOffset + rectWidth / 2;
     const offsetY = WallOffset + rectHeight / 2;

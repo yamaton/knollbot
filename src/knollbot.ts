@@ -141,7 +141,7 @@ Events.on(engine, 'beforeUpdate', function (event) {
 
             // repulsive 1/r^2 force
             let forceAntiGravity = { x: 0, y: 0 };
-            if (!src.isSensor && !tgt.isStatic) {
+            if (!src.isStatic && !tgt.isStatic) {
                 forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
                 // forceAntiGravity = respulsion.antiGravityManhattan(AntiGravityConst, src, tgt);
             }

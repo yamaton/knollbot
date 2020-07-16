@@ -1,12 +1,11 @@
 /// <reference path="../src/unionfind.ts" />
-let uf = new unionfind.UnionFind(10);
-let assert = chai.assert;
 
 describe('UnionFind', () => {
+  let assert = chai.assert;
+  let uf = new unionfind.UnionFind(10);
 
   it('should behave as expected' , () => {
     assert.strictEqual(uf.isConnected(3,4), false);
-    
     uf.connect(3, 4);
     uf.connect(5, 6)
     uf.connect(4, 5);

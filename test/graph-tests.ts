@@ -1,13 +1,10 @@
 /// <reference path="../src/graph.ts" />
 /// <reference path="../src/utils.ts" />
 
-import { Vertices } from "matter-js";
-
-
-
-
 
 describe('Kruskal', () => {
+    let assert = chai.assert;
+
     // Example from CLRS p632
     const test_edges = [
         {

@@ -1,4 +1,7 @@
 namespace unionfind {
+  type Node = string | number;
+  type Index = number;
+
   const range = (size: number): number[] => {
     size = Math.floor(size);
     return [...Array(size).keys()]
@@ -7,38 +10,63 @@ namespace unionfind {
   export class UnionFind {
     len: number;
     parent: number[];
+    translate: Map<Node,Index>;
 
-    constructor(len: number) {
-      this.len = len;
-      this.parent = range(len).map(_ => -1);
+    constructor(arg: number | Node[]) {
+      if (typeof arg == 'number') {
+        this.len = arg;
+        this.translate = new Map(Array(arg).map((v, i) => [i, i]));
+      } else {
+        this.len = arg.length;
+        this.translate =  new Map(arg.map((v, i) => [v, i]));
+      }
+      this.parent = range(this.len).map(_ => -1);
     }
 
-    _isRoot(x: number): boolean {
+    _isRoot(x: Index): boolean {
       return this.parent[x] < 0;
     }
 
-    root(x: number): number {
+    _root(x: Index): Index {
       while (!this._isRoot(x)) {
         x = this.parent[x];
       }
       return x;
     }
 
-    _depth(x: number): number {
-      return -this.parent[this.root(x)];
+    _depth(x: Index): Index {
+      return -this.parent[this._root(x)];
     }
 
-    isConnected(x: number, y: number): boolean {
-      return this.root(x) == this.root(y);
+    /**
+     * Fetch index. Add to this._translate if absent.
+     * @param x 
+     */
+    _index(x: Node): Index {
+      let ix = this.translate.get(x);
+      if (ix === undefined) {
+        ix = this.len;
+        this.translate.set(x, ix);
+        this.len += 1;
+      }
+      return ix;
     }
 
-    connect(x: number, y: number): boolean {
-      if (this._depth(x) < this._depth(y)) {
-        return this.connect(y, x);
+    isConnected(x: Node, y: Node): boolean {
+      let ix = this._index(x);
+      let iy = this._index(y);
+      return this._root(ix) == this._root(iy);
+    }
+
+    connect(x: Node, y: Node): boolean {
+      let ix = this._index(x);
+      let iy = this._index(y);
+      if (this._depth(ix) < this._depth(iy)) {
+        return this.connect(x, y);
       }
 
-      let rootX = this.root(x);
-      let rootY = this.root(y);
+      let rootX = this._root(ix);
+      let rootY = this._root(iy);
       if (rootX == rootY) {
         return false;
       }

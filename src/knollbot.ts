@@ -1,16 +1,16 @@
 // module aliases
-const Engine = Matter.Engine,
-    Render = Matter.Render,
-    Runner = Matter.Runner,
-    Composites = Matter.Composites,
-    Constraint = Matter.Constraint,
-    MouseConstraint = Matter.MouseConstraint,
-    Events = Matter.Events,
-    Mouse = Matter.Mouse,
-    World = Matter.World,
-    Bodies = Matter.Bodies,
-    Vector = Matter.Vector,
-    Body = Matter.Body;
+const Engine = Matter.Engine;
+const Render = Matter.Render;
+const Runner = Matter.Runner;
+const Composites = Matter.Composites;
+const Constraint = Matter.Constraint;
+const MouseConstraint = Matter.MouseConstraint;
+const Events = Matter.Events;
+const Mouse = Matter.Mouse;
+const World = Matter.World;
+const Bodies = Matter.Bodies;
+const Vector = Matter.Vector;
+const Body = Matter.Body;
 
 // create an engine
 const engine = Engine.create();
@@ -51,8 +51,8 @@ const AntiGravityConst = 100.0;
 const PokeScale = 1.0;
 
 // Alignment force
-const ForceScale = 0.0005;
-const ForceRange = 20;  // in pixels
+const AlignmentForceCoeff = 0.0010;
+const AlignmentForceRange = 30;  // in pixels
 
 
 // --------------------------------------
@@ -126,63 +126,166 @@ World.add(world, blocks);
 World.add(world, mouseConstraint);
 
 
+
+const applyAntiGravityTwoBodies = (src: Matter.Body, tgt: Matter.Body) => {
+    // wall should not be involved
+    let forceAntiGravity = { x: 0, y: 0 };
+    if (!src.isStatic && !tgt.isStatic) {
+        forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
+    }
+    // antigravity exerts on the center of a block
+    Body.applyForce(tgt, tgt.position, forceAntiGravity);
+    Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
+}
+
+
+const applyAntiGravityEdgeX = (blocks: Matter.Body[], e: EdgeExtended) => {
+    let src = blocks[e.idxSrc];
+    let tgt = blocks[e.idxTgt];
+    let forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
+    let forceOnTgt = { x: forceAntiGravity.x, y: 0 };
+    // antigravity exerts on the nearest edge of a block
+    Body.applyForce(tgt, e.posTgt, forceOnTgt);
+    Body.applyForce(src, e.posSrc, utils.negate(forceOnTgt));
+}
+
+
+const applyAntiGravityEdgeY = (blocks: Matter.Body[], e: EdgeExtended) => {
+    let src = blocks[e.idxSrc];
+    let tgt = blocks[e.idxTgt];
+    let forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
+    let forceOnTgt = { x: 0, y: forceAntiGravity.y };
+    // antigravity exerts on the nearest edge of a block
+    Body.applyForce(tgt, e.posTgt, forceOnTgt);
+    Body.applyForce(src, e.posSrc, utils.negate(forceOnTgt));
+}
+
+
+const applyRandomPoke = (block: Matter.Body) => {
+    if (!block.isStatic) {
+        Body.applyForce(block, block.position,
+            { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
+    }
+}
+
+
+interface EdgeExtended extends graph.Edge {
+    posSrc: utils.Vector,
+    posTgt: utils.Vector,
+    idxSrc: number,
+    idxTgt: number,
+}
+
+
+interface GraphExtended extends graph.Graph {
+    edges: EdgeExtended[],
+}
+
+
+type IPointPairFunc = (body1: Matter.Body, body2: Matter.Body) => [utils.Vector, utils.Vector, number];
+
+const createAlignmentGraphMeta = (blocks: Matter.Body[], pointPairFunc: IPointPairFunc): GraphExtended => {
+    let edges: EdgeExtended[] = [];
+    for (let i = 0; i < blocks.length; i++) {
+        for (let j = i + 1; j < blocks.length; j++) {
+            let src = blocks[i];
+            let tgt = blocks[j];
+            let [posSrc, posTgt, dist] = pointPairFunc(src, tgt);
+            if (dist < AlignmentForceRange) {
+                let e: EdgeExtended = {
+                    weight: dist,
+                    pair: utils.makeUnorderedPair(i, j),
+                    posSrc: posSrc,
+                    posTgt: posTgt,
+                    idxSrc: i,
+                    idxTgt: j,
+                }
+                edges.push(e);
+            }
+        }
+    }
+    let g: GraphExtended = {
+        vertices: utils.range(blocks.length),
+        edges: edges,
+    }
+    return g;
+}
+
+const createAlignmentGraphX = (blocks: Matter.Body[]): GraphExtended => {
+    return createAlignmentGraphMeta(blocks, utils.cloestPointPairX);
+}
+const createAlignmentGraphY = (blocks: Matter.Body[]): GraphExtended => {
+    return createAlignmentGraphMeta(blocks, utils.cloestPointPairY);
+}
+
+const applyAlignmentForceX = (blocks: Matter.Body[], edge: EdgeExtended) => {
+    let sign = (edge.posSrc.x < edge.posTgt.x) ? -1 : 1;
+    let dist = edge.weight;
+    let force = AlignmentForceCoeff * sign * dist;
+    let forceOnTgt = { x: force, y: 0 };
+    let src = blocks[edge.idxSrc];
+    let tgt = blocks[edge.idxTgt];
+    Body.applyForce(tgt, edge.posTgt, forceOnTgt);
+    Body.applyForce(src, edge.posSrc, utils.negate(forceOnTgt));
+}
+
+const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
+    let sign = (edge.posSrc.y < edge.posTgt.y) ? -1 : 1;
+    let dist = edge.weight;
+    let force = AlignmentForceCoeff * sign * dist;
+    let forceOnTgt = { x: 0, y: force };
+    let i = edge.idxSrc;
+    let j = edge.idxTgt;
+    let src = blocks[i];
+    let tgt = blocks[j];
+    Body.applyForce(tgt, edge.posTgt, forceOnTgt);
+    Body.applyForce(src, edge.posSrc, utils.negate(forceOnTgt));
+}
+
+
 var counter = 0;
-Events.on(engine, 'beforeUpdate', function (event) {
+Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
     counter += 1;
     if (counter % 60 == 0) {
         console.log("counter: ", counter);
     }
+    let ufX = new unionfind.UnionFind(blocks.length);
+    let ufY = new unionfind.UnionFind(blocks.length);
 
-    for (let i = 0; i < blocks.length; i++) {
-        for (let j = i + 1; j < blocks.length; j++) {
-
-            let src = blocks[i];
-            let tgt = blocks[j];
-
-            // tiny performance improvement
-            if (src.isStatic && tgt.isStatic) continue;
-
-            // repulsive 1/r^2 force
-            let forceAntiGravity = { x: 0, y: 0 };
-            if (!src.isStatic && !tgt.isStatic) {
-                forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
-                // forceAntiGravity = respulsion.antiGravityManhattan(AntiGravityConst, src, tgt);
+    if (counter < 60) {
+        for (let i = 0; i < blocks.length; i++) {
+            for (let j = i + 1; j < blocks.length; j++) {
+                applyAntiGravityTwoBodies(blocks[i], blocks[j]);
             }
-
-            if (counter < 60) {
-                Body.applyForce(tgt, tgt.position, forceAntiGravity);
-                Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
-
-                // random poking
-                Body.applyForce(tgt, tgt.position, { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
-                Body.applyForce(src, src.position, { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
-
-            } else {
-
-                // long-range magnet interaction
-                let [posSrcX, posTgtX, distX] = utils.cloestPointPairX(src, tgt);
-                let forceOnTgtX = { x: forceAntiGravity.x, y: 0 };
-                if (distX < ForceRange) {
-                    let dir = (posSrcX.x < posTgtX.x) ? -1 : 1;
-                    let force = ForceScale * dir * distX;
-                    forceOnTgtX = { x: force, y: 0 };
-                };
-
-                let [posSrcY, posTgtY, distY] = utils.cloestPointPairY(src, tgt);
-                let forceOnTgtY = { x: 0, y: forceAntiGravity.y };
-                if (distY < ForceRange) {
-                    let dir = (posSrcY.y < posTgtY.y) ? -1 : 1;
-                    let force = ForceScale * dir * distY;
-                    forceOnTgtY = { x: 0, y: force };
-                };
-
-                // forces act on different points
-                Body.applyForce(tgt, posTgtX, forceOnTgtX);
-                Body.applyForce(src, posSrcX, utils.negate(forceOnTgtX));
-                Body.applyForce(tgt, posTgtY, forceOnTgtY);
-                Body.applyForce(src, posSrcY, utils.negate(forceOnTgtY));
-            }
+            applyRandomPoke(blocks[i]);
         }
+    } else {
+        // after 60 frames
+        let gX = createAlignmentGraphX(blocks);
+        let gY = createAlignmentGraphY(blocks);
+        let edgeMstX = graph.kruskal(gX) as EdgeExtended[];
+        let edgeMstY = graph.kruskal(gY) as EdgeExtended[];
+
+        let ufX = new unionfind.UnionFind(gX.vertices);
+        edgeMstX.forEach(e => { ufX.connect(e.idxSrc, e.idxTgt) });
+        let ufY = new unionfind.UnionFind(gY.vertices);
+        edgeMstY.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
+
+        edgeMstX.forEach(e => {
+            if (e.weight < AlignmentForceRange) {
+                applyAlignmentForceX(blocks, e);
+            } else if (!ufX.isConnected(e.idxSrc, e.idxTgt)) {
+                applyAntiGravityEdgeX(blocks, e);
+            }
+        });
+
+        edgeMstY.forEach(e => {
+            if (e.weight < AlignmentForceRange) {
+                applyAlignmentForceY(blocks, e);
+            } else if (!ufY.isConnected(e.idxSrc, e.idxTgt)) {
+                applyAntiGravityEdgeY(blocks, e);
+            }
+        });
     }
 });
 

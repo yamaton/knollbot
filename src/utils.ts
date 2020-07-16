@@ -114,7 +114,7 @@ namespace utils {
     }
 
 
-    export const randRange = (lo: number, hi: number, unit: number=1): number => {
+    export const randRange = (lo: number, hi: number, unit: number = 1): number => {
         let a = Math.floor(lo);
         let b = Math.floor(hi);
         return a + Math.floor(Math.random() * (b - a) / unit) * unit
@@ -139,4 +139,14 @@ namespace utils {
     export const negate = (v: Vector): Vector => {
         return { x: -v.x, y: -v.y };
     }
+
+    export type Pair<T1, T2> = {
+        first: T1,
+        second: T2,
+    }
+
+    export const makePair = <T1, T2>(a: T1, b: T2): Pair<T1, T2> => {
+        return { first: a, second: b };
+    }
+
 }

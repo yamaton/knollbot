@@ -140,12 +140,16 @@ namespace utils {
         return { x: -v.x, y: -v.y };
     }
 
-    export type Pair<T1, T2> = {
-        first: T1,
-        second: T2,
+
+    export type Pair<T> = {
+        first: T,
+        second: T,
     }
 
-    export const makePair = <T1, T2>(a: T1, b: T2): Pair<T1, T2> => {
+    export const makeUnorderedPair = <T>(a: T, b: T): Pair<T> => {
+        if (b < a) {
+            [a, b] = [b, a];
+        }
         return { first: a, second: b };
     }
 

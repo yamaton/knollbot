@@ -3,7 +3,7 @@
 namespace graph {
   type Vertex = number | string;
   type Edge = {
-    pair: utils.Pair<Vertex, Vertex>,
+    pair: utils.Pair<Vertex>,
     weight: number,
   };
   type Graph = {

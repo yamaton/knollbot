@@ -15,7 +15,7 @@ namespace unionfind {
     constructor(arg: number | Node[]) {
       if (typeof arg == 'number') {
         this.len = arg;
-        this.translate = new Map(Array(arg).map((v, i) => [i, i]));
+        this.translate = new Map(range(arg).map((_, i) => [i, i]));
       } else {
         this.len = arg.length;
         this.translate =  new Map(arg.map((v, i) => [v, i]));
@@ -43,11 +43,14 @@ namespace unionfind {
      * @param x 
      */
     _index(x: Node): Index {
-      let ix = this.translate.get(x);
-      if (ix === undefined) {
+      let tmp = this.translate.get(x);
+      let ix: Index;
+      if (tmp === undefined) {
         ix = this.len;
         this.translate.set(x, ix);
         this.len += 1;
+      } else {
+        ix = tmp;
       }
       return ix;
     }
@@ -62,9 +65,8 @@ namespace unionfind {
       let ix = this._index(x);
       let iy = this._index(y);
       if (this._depth(ix) < this._depth(iy)) {
-        return this.connect(x, y);
+        return this.connect(y, x);
       }
-
       let rootX = this._root(ix);
       let rootY = this._root(iy);
       if (rootX == rootY) {

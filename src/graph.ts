@@ -1,12 +1,14 @@
 // Minimum spanning tree
 
 namespace graph {
-  type Vertex = number | string;
-  type Edge = {
+  export type Vertex = number | string;
+
+  export interface Edge {
     pair: utils.Pair<Vertex>,
     weight: number,
+    [propName: string]: any;
   };
-  type Graph = {
+  export interface Graph {
     vertices: Vertex[];
     edges: Edge[];
   }
@@ -20,12 +22,11 @@ namespace graph {
     for (let e of sortedEdges) {
       let v1 = e.pair.first;
       let v2 = e.pair.second;
-      if (! uf.isConnected(v1, v2)) {
+      if (!uf.isConnected(v1, v2)) {
         uf.connect(v1, v2);
         res.push(e);
       }
     }
     return res;
   }
-
 }

@@ -80,7 +80,7 @@ describe('Kruskal', () => {
     ].map(v => utils.makeUnorderedPair(v[0], v[1]))
     );
 
-    it('should behave as expected', () => {
+    it('should behave as illustrated in CLRS p632', () => {
         for (let x of g.vertices) {
             for (let y of g.vertices) {
                 if (x == y) continue;

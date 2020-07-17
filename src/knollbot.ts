@@ -33,7 +33,7 @@ const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 
 // --------------------------------------
 // Object parameters
-const NumBoxes = 3;
+const NumBoxes = 4;
 const allSquare = false;
 
 const MinSizeX = 30;
@@ -130,38 +130,35 @@ World.add(world, blocks);
 World.add(world, mouseConstraint);
 
 
-
-const applyAntiGravityTwoBodies = (src: Matter.Body, tgt: Matter.Body) => {
+const applyAntiGravityVector = (src: Matter.Body, tgt: Matter.Body) => {
     // wall should not be involved
-    let forceAntiGravity = { x: 0, y: 0 };
     if (!src.isStatic && !tgt.isStatic) {
-        forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
+        let forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
+        // antigravity exerts on the center of a block
+        Body.applyForce(tgt, tgt.position, forceAntiGravity);
+        Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
     }
-    // antigravity exerts on the center of a block
-    Body.applyForce(tgt, tgt.position, forceAntiGravity);
-    Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
 }
 
 
-const applyAntiGravityEdgeX = (blocks: Matter.Body[], e: EdgeExtended) => {
-    let src = blocks[e.idxSrc];
-    let tgt = blocks[e.idxTgt];
-    let forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
-    let forceOnTgt = { x: forceAntiGravity.x, y: 0 };
-    // antigravity exerts on the nearest edge of a block
-    Body.applyForce(tgt, e.posTgt, forceOnTgt);
-    Body.applyForce(src, e.posSrc, utils.negate(forceOnTgt));
-}
-
-
-const applyAntiGravityEdgeY = (blocks: Matter.Body[], e: EdgeExtended) => {
-    let src = blocks[e.idxSrc];
-    let tgt = blocks[e.idxTgt];
-    let forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
-    let forceOnTgt = { x: 0, y: forceAntiGravity.y };
-    // antigravity exerts on the nearest edge of a block
-    Body.applyForce(tgt, e.posTgt, forceOnTgt);
-    Body.applyForce(src, e.posSrc, utils.negate(forceOnTgt));
+const applyAntiGravityDisjoint = (blocks: Matter.Body[], ufX: unionfind.UnionFind, ufY: unionfind.UnionFind) => {
+    for (let i = 0; i < blocks.length; i++) {
+        for (let j = i + 1; j < blocks.length; j++) {
+            let src = blocks[i];
+            let tgt = blocks[j];
+            if (!src.isStatic && !tgt.isStatic) {
+                let force = respulsion.antiGravity(AntiGravityConst, src, tgt);
+                if (ufX.areConnected(i, j)) {
+                    force.x = 0;
+                }
+                if (ufY.areConnected(i, j)) {
+                    force.y = 0;
+                }
+                Body.applyForce(tgt, tgt.position, force)
+                Body.applyForce(src, src.position, utils.negate(force));
+            }
+        }
+    }
 }
 
 
@@ -229,8 +226,8 @@ const applyAlignmentForceX = (blocks: Matter.Body[], edge: EdgeExtended) => {
     let forceOnTgt = { x: force, y: 0 };
     let src = blocks[edge.idxSrc];
     let tgt = blocks[edge.idxTgt];
-    Body.applyForce(tgt, edge.posTgt, forceOnTgt);
-    Body.applyForce(src, edge.posSrc, utils.negate(forceOnTgt));
+    Body.applyForce(tgt, tgt.position, forceOnTgt);
+    Body.applyForce(src, src.position, utils.negate(forceOnTgt));
 }
 
 const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
@@ -242,8 +239,8 @@ const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
     let j = edge.idxTgt;
     let src = blocks[i];
     let tgt = blocks[j];
-    Body.applyForce(tgt, edge.posTgt, forceOnTgt);
-    Body.applyForce(src, edge.posSrc, utils.negate(forceOnTgt));
+    Body.applyForce(tgt, tgt.position, forceOnTgt);
+    Body.applyForce(src, src.position, utils.negate(forceOnTgt));
 }
 
 
@@ -259,7 +256,7 @@ Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
     if (counter < 60) {
         for (let i = 0; i < blocks.length; i++) {
             for (let j = i + 1; j < blocks.length; j++) {
-                applyAntiGravityTwoBodies(blocks[i], blocks[j]);
+                applyAntiGravityVector(blocks[i], blocks[j]);
             }
             applyRandomPoke(blocks[i]);
         }
@@ -270,26 +267,16 @@ Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
         let edgeMstX = graph.kruskal(gX) as EdgeExtended[];
         let edgeMstY = graph.kruskal(gY) as EdgeExtended[];
 
+        // alignment force occurs at MST edges only
+        edgeMstX.forEach(e => { applyAlignmentForceX(blocks, e) });
+        edgeMstY.forEach(e => { applyAlignmentForceY(blocks, e) });
+
+        // antigravity force occurs at disconnected nodes
         let ufX = new unionfind.UnionFind(gX.vertices);
-        edgeMstX.forEach(e => { ufX.connect(e.idxSrc, e.idxTgt) });
+        gX.edges.forEach(e => { ufX.connect(e.idxSrc, e.idxTgt) });
         let ufY = new unionfind.UnionFind(gY.vertices);
-        edgeMstY.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
-
-        edgeMstX.forEach(e => {
-            if (e.weight < AlignmentForceRange) {
-                applyAlignmentForceX(blocks, e);
-            } else if (!ufX.areConnected(e.idxSrc, e.idxTgt)) {
-                applyAntiGravityEdgeX(blocks, e);
-            }
-        });
-
-        edgeMstY.forEach(e => {
-            if (e.weight < AlignmentForceRange) {
-                applyAlignmentForceY(blocks, e);
-            } else if (!ufY.areConnected(e.idxSrc, e.idxTgt)) {
-                applyAntiGravityEdgeY(blocks, e);
-            }
-        });
+        gY.edges.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
+        applyAntiGravityDisjoint(blocks, ufX, ufY);
     }
 });
 

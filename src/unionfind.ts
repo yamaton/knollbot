@@ -6,7 +6,7 @@ namespace unionfind {
   export class UnionFind {
     len: number;
     parent: number[];
-    translate: Map<Node,Index>;
+    translate: Map<Node, Index>;
 
     constructor(arg: number | Node[]) {
       if (typeof arg == 'number') {
@@ -14,7 +14,7 @@ namespace unionfind {
         this.translate = new Map(utils.range(arg).map((_, i) => [i, i]));
       } else {
         this.len = arg.length;
-        this.translate =  new Map(arg.map((v, i) => [v, i]));
+        this.translate = new Map(arg.map((v, i) => [v, i]));
       }
       this.parent = utils.range(this.len).map(_ => -1);
     }
@@ -73,8 +73,8 @@ namespace unionfind {
       return true;
     }
 
-    print() {
-      console.log("parent: ", parent);
+    getRootAll(): Index[] {
+      return utils.range(this.len).map(i => this._root(i));
     };
   }
 }

@@ -51,7 +51,7 @@ namespace unionfind {
       return ix;
     }
 
-    isConnected(x: Node, y: Node): boolean {
+    areConnected(x: Node, y: Node): boolean {
       let ix = this._index(x);
       let iy = this._index(y);
       return this._root(ix) == this._root(iy);

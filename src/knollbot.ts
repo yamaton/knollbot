@@ -278,7 +278,7 @@ Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
         edgeMstX.forEach(e => {
             if (e.weight < AlignmentForceRange) {
                 applyAlignmentForceX(blocks, e);
-            } else if (!ufX.isConnected(e.idxSrc, e.idxTgt)) {
+            } else if (!ufX.areConnected(e.idxSrc, e.idxTgt)) {
                 applyAntiGravityEdgeX(blocks, e);
             }
         });
@@ -286,7 +286,7 @@ Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
         edgeMstY.forEach(e => {
             if (e.weight < AlignmentForceRange) {
                 applyAlignmentForceY(blocks, e);
-            } else if (!ufY.isConnected(e.idxSrc, e.idxTgt)) {
+            } else if (!ufY.areConnected(e.idxSrc, e.idxTgt)) {
                 applyAntiGravityEdgeY(blocks, e);
             }
         });

@@ -47,7 +47,11 @@ const UnitSize = 16;
 const FrictionAir = 0.3;
 const Friction = 0.01;
 const WallFriction = 0.01;
+
+// Anti-gravity
 const AntiGravityConst = 100.0;
+
+// Random poking
 const PokeScale = 1.0;
 
 // Alignment force
@@ -191,7 +195,7 @@ const createAlignmentGraphMeta = (blocks: Matter.Body[], pointPairFunc: IPointPa
             let src = blocks[i];
             let tgt = blocks[j];
             let [posSrc, posTgt, dist] = pointPairFunc(src, tgt);
-            if (dist < AlignmentForceRange) {
+            if (dist < AlignmentForceRange && (!src.isStatic || !tgt.isStatic)) {
                 let e: EdgeExtended = {
                     weight: dist,
                     pair: utils.makeUnorderedPair(i, j),
@@ -246,7 +250,7 @@ const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
 var counter = 0;
 Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
     counter += 1;
-    if (counter % 60 == 0) {
+    if (counter % 300 == 0) {
         console.log("counter: ", counter);
     }
     let ufX = new unionfind.UnionFind(blocks.length);

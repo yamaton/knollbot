@@ -2,10 +2,6 @@ namespace unionfind {
   type Node = string | number;
   type Index = number;
 
-  const range = (size: number): number[] => {
-    size = Math.floor(size);
-    return [...Array(size).keys()]
-  };
 
   export class UnionFind {
     len: number;
@@ -15,12 +11,12 @@ namespace unionfind {
     constructor(arg: number | Node[]) {
       if (typeof arg == 'number') {
         this.len = arg;
-        this.translate = new Map(range(arg).map((_, i) => [i, i]));
+        this.translate = new Map(utils.range(arg).map((_, i) => [i, i]));
       } else {
         this.len = arg.length;
         this.translate =  new Map(arg.map((v, i) => [v, i]));
       }
-      this.parent = range(this.len).map(_ => -1);
+      this.parent = utils.range(this.len).map(_ => -1);
     }
 
     _isRoot(x: Index): boolean {

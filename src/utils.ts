@@ -4,7 +4,7 @@ namespace utils {
     export const arrSum = (xs: number[]): number => xs.reduce((acc, x) => acc + x, 0);
     export const arrMean = (xs: number[]): number => arrSum(xs) / xs.length;
 
-    interface Vector {
+    export interface Vector {
         x: number,
         y: number,
     }
@@ -113,6 +113,10 @@ namespace utils {
         return cloestPointMeta(body1, body2, topmostPoint, bottommostPoint, distVerti);
     }
 
+    export const range = (size: number): number[] => {
+        size = Math.floor(size);
+        return [...Array(size).keys()]
+      };
 
     export const randRange = (lo: number, hi: number, unit: number = 1): number => {
         let a = Math.floor(lo);

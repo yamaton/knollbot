@@ -1,25 +1,13 @@
-2476a2477
->          * @property options.wireframes
-2483a2485
->          * @property options.background
-2485c2487
+2485c2485
 <          * default undefined
 ---
 >          * @default '#18181d'
-2487c2489
-<         background?: string
----
->         background?: string;
-2490a2493
->          * @property options.wireframeBackground
-2492c2495
+2492c2492,2614
 <          * default undefined
 ---
 >          * @default '#0f0f13'
-2494c2497,2622
-<         wireframeBackground?: string
----
->          wireframeBackground?: string;
+>          */
+>         wireframeBackground?: string;
 > 
 >         /**
 >          * @property options.pixelRatio
@@ -41,21 +29,20 @@
 >          * @default true
 >          */
 >         showSleeping?: boolean;
->         
+> 
 >         /**
 >          * @property options.showDebug
 >          * @type boolean
 >          * @default false
 >          */
 >         showDebug?: boolean;
-> 
 >         /**
 >          * @property options.showBroadphase
 >          * @type boolean
 >          * @default false
 >          */
 >         showBroadphase?: boolean;
->     
+> 
 >         /**
 >          * @property options.showBounds
 >          * @type boolean
@@ -69,14 +56,13 @@
 >          * @default false
 >          */
 >         showVelocity?: boolean;
->     
+> 
 >         /**
 >          * @property options.showCollisions
 >          * @type boolean
 >          * @default false
 >          */
 >         showCollisions?: boolean;
-> 
 >         /**
 >          * @property options.showSeparations
 >          * @type boolean
@@ -90,7 +76,7 @@
 >          * @default false
 >          */
 >         showAxes?: boolean;
->     
+> 
 >         /**
 >          * @property options.showPositions
 >          * @type boolean
@@ -104,27 +90,26 @@
 >          * @default false
 >          */
 >         showAngleIndicator?: boolean;
-> 
 >         /**
 >          * @property options.showIds
 >          * @type boolean
 >          * @default false
 >          */
 >         showIds?: boolean;
-> 
 >         /**
 >          * @property options.showShadows
 >          * @type boolean
 >          * @default false
 >          */
 >         showShadows?: boolean;
->     
+> 
 >         /**
 >          * @property options.showVertexNumbers
 >          * @type boolean
 >          * @default false
 >          */
 >         showVertexNumbers?: boolean;
+> 
 >         /**
 >          * @property options.showConvexHulls
 >          * @type boolean
@@ -138,10 +123,12 @@
 >          * @default false
 >          */
 >         showInternalEdges?: boolean;
->     
+> 
 >         /**
 >          * @property options.showMousePosition
 >          * @type boolean
 >          * @default false
->          */
+2494c2616
+<         wireframeBackground?: string
+---
 >         showMousePosition?: boolean;

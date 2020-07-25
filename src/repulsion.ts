@@ -17,11 +17,22 @@ namespace respulsion {
     }
 
 
-    export const antiGravity = (g: number, src: Matter.Body, tgt: Matter.Body): Matter.Vector => {
+    export const antiGravityRanged = (g: number, src: Matter.Body, tgt: Matter.Body): Matter.Vector => {
         let d = utils.distEuclid(src.position, tgt.position);
         // characteristic size
         let charSize = 0.5 * (Math.sqrt(src.area) + Math.sqrt(tgt.area));
         let antiGravityMag = (d < AntiGravityRangeFactor * charSize) ? AntiGravityConst / d ** 2 : 0;
+        let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
+        let force = {
+            x: antiGravityMag * unitSrcToTgt.x,
+            y: antiGravityMag * unitSrcToTgt.y,
+        };
+        return force;
+    }
+
+    export const antiGravity = (g: number, src: Matter.Body, tgt: Matter.Body, multiplier = 1.0): Matter.Vector => {
+        let d = utils.distEuclid(src.position, tgt.position);
+        let antiGravityMag = multiplier * AntiGravityConst / d ** 2;
         let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
         let force = {
             x: antiGravityMag * unitSrcToTgt.x,

@@ -133,7 +133,7 @@ World.add(world, mouseConstraint);
 const applyAntiGravityVector = (src: Matter.Body, tgt: Matter.Body) => {
     // wall should not be involved
     if (!src.isStatic && !tgt.isStatic) {
-        let forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt);
+        let forceAntiGravity = respulsion.antiGravityRanged(AntiGravityConst, src, tgt);
         // antigravity exerts on the center of a block
         Body.applyForce(tgt, tgt.position, forceAntiGravity);
         Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
@@ -147,7 +147,7 @@ const applyAntiGravityDisjoint = (blocks: Matter.Body[], ufX: unionfind.UnionFin
             let src = blocks[i];
             let tgt = blocks[j];
             if (!src.isStatic && !tgt.isStatic) {
-                let force = respulsion.antiGravity(AntiGravityConst, src, tgt);
+                let force = respulsion.antiGravityRanged(AntiGravityConst, src, tgt);
                 if (ufX.areConnected(i, j)) {
                     force.x = 0;
                 }

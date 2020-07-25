@@ -77,4 +77,31 @@ namespace unionfind {
       return utils.range(this.len).map(i => this._root(i));
     };
   }
+
+
+  export class MultiSet<T> {
+    counter: Map<T, number>;
+    constructor(xs?: T[]) {
+      this.counter = new Map<T, number>();
+      if (xs) {
+        xs.forEach(x => this.add(x));
+      }
+    }
+
+    add(x: T) {
+      this.counter.set(x, (this.counter.get(x) ?? 0) + 1)
+    }
+
+    get(x: T): number {
+      return this.counter.get(x) ?? 0;
+    }
+
+    has(x: T): boolean {
+      return this.counter.has(x);
+    }
+
+    clear() {
+      this.counter.clear();
+    }
+  }
 }

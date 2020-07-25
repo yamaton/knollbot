@@ -33,7 +33,7 @@ const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 
 // --------------------------------------
 // Object parameters
-const NumBoxes = 4;
+const NumBoxes = 7;
 const allSquare = false;
 
 const MinSizeX = 30;
@@ -52,7 +52,7 @@ const WallFriction = 0.01;
 const AntiGravityConst = 100.0;
 
 // Random poking
-const PokeScale = 1.0;
+const PokeScale = 1.3;
 
 // Alignment force
 const AlignmentForceCoeff = 0.0010;
@@ -244,6 +244,22 @@ const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
 }
 
 
+const applyGrouping = (src: Matter.Body, tgt: Matter.Body) => {
+    // wall should not be involved
+    if (!src.isStatic && !tgt.isStatic) {
+        let forceAntiGravity = respulsion.antiGravity(AntiGravityConst, src, tgt, 4);
+
+        // exert attractive force if in the same group
+        if (utils.areSameWidth(src, tgt) || utils.areSameHeight(src, tgt)) {
+            forceAntiGravity = utils.negate(forceAntiGravity);
+        }
+        // antigravity exerts on the center of a block
+        Body.applyForce(tgt, tgt.position, forceAntiGravity);
+        Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
+    }
+}
+
+
 var counter = 0;
 Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
     counter += 1;
@@ -253,7 +269,14 @@ Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
     let ufX = new unionfind.UnionFind(blocks.length);
     let ufY = new unionfind.UnionFind(blocks.length);
 
-    if (counter < 60) {
+    if (counter < 180) {
+        for (let i = 0; i < blocks.length; i++) {
+            for (let j = i + 1; j < blocks.length; j++) {
+                applyGrouping(blocks[i], blocks[j]);
+            }
+            applyRandomPoke(blocks[i]);
+        }
+    } else if (counter < 240) {
         for (let i = 0; i < blocks.length; i++) {
             for (let j = i + 1; j < blocks.length; j++) {
                 applyAntiGravityVector(blocks[i], blocks[j]);

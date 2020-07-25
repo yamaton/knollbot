@@ -116,7 +116,7 @@ namespace utils {
     export const range = (size: number): number[] => {
         size = Math.floor(size);
         return [...Array(size).keys()]
-      };
+    };
 
     export const randRange = (lo: number, hi: number, unit: number = 1): number => {
         let a = Math.floor(lo);
@@ -155,6 +155,24 @@ namespace utils {
             [a, b] = [b, a];
         }
         return { first: a, second: b };
+    }
+
+    export const getWidth = (block: Matter.Body): number => {
+        let xs = block.vertices.map(v => v.x);
+        return arrMax(xs) - arrMin(xs);
+    }
+
+    export const getHeight = (block: Matter.Body): number => {
+        let ys = block.vertices.map(v => v.y);
+        return arrMax(ys) - arrMin(ys);
+    }
+
+    export const areSameHeight = (foo: Matter.Body, bar: Matter.Body) => {
+        return getHeight(foo) == getHeight(bar);
+    }
+
+    export const areSameWidth = (foo: Matter.Body, bar: Matter.Body) => {
+        return getWidth(foo) == getWidth(bar);
     }
 
 }

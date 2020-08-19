@@ -1,12 +1,22 @@
+561c561
+<         xScale: number;
+---
+>         xScale?: number;
+570c570
+<         yScale: number;
+---
+>         yScale?: number;
 2485c2485
 <          * default undefined
 ---
 >          * @default '#18181d'
-2492c2492,2614
+2492c2492
 <          * default undefined
 ---
 >          * @default '#0f0f13'
->          */
+2494c2494,2616
+<         wireframeBackground?: string
+---
 >         wireframeBackground?: string;
 > 
 >         /**
@@ -128,7 +138,5 @@
 >          * @property options.showMousePosition
 >          * @type boolean
 >          * @default false
-2494c2616
-<         wireframeBackground?: string
----
+>          */
 >         showMousePosition?: boolean;

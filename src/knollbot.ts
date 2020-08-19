@@ -69,6 +69,8 @@ const render = Render.create({
         height: ScreenHeight,
         // showAngleIndicator: true,
         showVelocity: true,
+        wireframes: false,    // required to enable sprites!
+        background: '#247c41',
     },
 });
 
@@ -79,19 +81,45 @@ const bodyOptions = {
     friction: Friction,
 }
 
-const boxes = Array<Matter.Body>(NumBoxes);
-for (let i = 0; i < NumBoxes; i++) {
-    const rectWidth = utils.randRange(MinSizeX, MaxSizeX, UnitSize);
-    let rectHeight = rectWidth;
-    if (!allSquare) {
-        rectHeight = utils.randRange(MinSizeY, MaxSizeY, UnitSize);
+// randomly generated of boxes
+// const boxes = Array<Matter.Body>(NumBoxes);
+// for (let i = 0; i < NumBoxes; i++) {
+//     const rectWidth = utils.randRange(MinSizeX, MaxSizeX, UnitSize);
+//     let rectHeight = rectWidth;
+//     if (!allSquare) {
+//         rectHeight = utils.randRange(MinSizeY, MaxSizeY, UnitSize);
+//     }
+//     const offsetX = WallOffset + rectWidth / 2;
+//     const offsetY = WallOffset + rectHeight / 2;
+//     const x = utils.randRange(offsetX, ScreenWidth - offsetX);
+//     const y = utils.randRange(offsetY, ScreenHeight - offsetY);
+//     boxes[i] = Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
+// }
+
+const createBox = (w: number, h: number, imgPath: string): Matter.Body => {
+    let offsetX = WallOffset + w / 2;
+    let offsetY = WallOffset + h / 2;
+    let x = utils.randRange(offsetX, ScreenWidth - offsetX);
+    let y = utils.randRange(offsetY, ScreenHeight - offsetY);
+    let options = {
+        ...bodyOptions,
+        render: {
+            sprite: {
+                texture: imgPath,
+            }
+        }
     }
-    const offsetX = WallOffset + rectWidth / 2;
-    const offsetY = WallOffset + rectHeight / 2;
-    const x = utils.randRange(offsetX, ScreenWidth - offsetX);
-    const y = utils.randRange(offsetY, ScreenHeight - offsetY);
-    boxes[i] = Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
+    return Bodies.rectangle(x, y, w, h, options);
 }
+
+const boxes = Array<Matter.Body>(NumBoxes);
+boxes[0] = createBox(123, 211, './public/images/drivers.jpg');
+boxes[1] = createBox(139, 202, './public/images/mouse.jpg');
+boxes[2] = createBox(415, 503, './public/images/mousepad.jpg');
+boxes[3] = createBox(208, 147, './public/images/purse.jpg');
+boxes[4] = createBox(146, 68, './public/images/sdreader.jpg');
+boxes[5] = createBox(86, 83, './public/images/sphero.jpg');
+boxes[6] = createBox(102, 95, './public/images/wipe.jpg');
 
 
 // surrounding wall

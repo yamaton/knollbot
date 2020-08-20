@@ -119,11 +119,11 @@ dist
 
 # local images for reference
 _images/
+_ref/
+
+# ignore during development
+built/
 
 # not sure this is the way
 # https://stackoverflow.com/questions/44206782/do-i-commit-the-package-lock-json-file-created-by-npm-5
 package-lock.json
-
-
-# ignore during development
-built/

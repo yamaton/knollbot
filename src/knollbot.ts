@@ -99,9 +99,12 @@ const bodyOptions = {
 //     boxes[i] = Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
 // }
 
-const createBox = (w: number, h: number, imgPath: string): Matter.Body => {
-    let offsetX = WallOffset + w / 2;
-    let offsetY = WallOffset + h / 2;
+
+const createBox = (imgPath: string): Matter.Body => {
+    let img = new Image();
+    img.src = imgPath;
+    let offsetX = WallOffset + img.width / 2;
+    let offsetY = WallOffset + img.height / 2;
     let x = utils.randRange(offsetX, ScreenWidth - offsetX);
     let y = utils.randRange(offsetY, ScreenHeight - offsetY);
     let options = {
@@ -112,17 +115,18 @@ const createBox = (w: number, h: number, imgPath: string): Matter.Body => {
             }
         }
     }
-    return Bodies.rectangle(x, y, w, h, options);
+    return Bodies.rectangle(x, y, img.width, img.height, options);
 }
 
+
 const boxes = Array<Matter.Body>(NumBoxes);
-boxes[0] = createBox(123, 211, './public/images/drivers.jpg');
-boxes[1] = createBox(139, 202, './public/images/mouse.jpg');
-boxes[2] = createBox(415, 503, './public/images/mousepad.jpg');
-boxes[3] = createBox(208, 147, './public/images/purse.jpg');
-boxes[4] = createBox(146, 68, './public/images/sdreader.jpg');
-boxes[5] = createBox(86, 83, './public/images/sphero.jpg');
-boxes[6] = createBox(102, 95, './public/images/wipe.jpg');
+boxes[0] = createBox('./public/images/drivers.jpg');
+boxes[1] = createBox('./public/images/mouse.jpg');
+boxes[2] = createBox('./public/images/mousepad.jpg');
+boxes[3] = createBox('./public/images/purse.jpg');
+boxes[4] = createBox('./public/images/sdreader.jpg');
+boxes[5] = createBox('./public/images/sphero.jpg');
+boxes[6] = createBox('./public/images/wipe.jpg');
 
 
 // surrounding wall

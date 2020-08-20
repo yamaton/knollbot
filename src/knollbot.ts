@@ -35,7 +35,7 @@ const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 
 // --------------------------------------
 // Object parameters
-const NumBoxes = 7;
+const NumBoxes = 28;
 const allSquare = false;
 
 // For randomly generated objects
@@ -127,6 +127,27 @@ boxes[3] = createBox('./public/images/purse.jpg');
 boxes[4] = createBox('./public/images/sdreader.jpg');
 boxes[5] = createBox('./public/images/sphero.jpg');
 boxes[6] = createBox('./public/images/wipe.jpg');
+boxes[7] = createBox('./public/images/lego_11-hole-beam.png');
+boxes[8] = createBox('./public/images/lego_11-hole-beam.png');
+boxes[9] = createBox('./public/images/lego_13-hole-beam.png');
+boxes[10] = createBox('./public/images/lego_13-hole-beam.png');
+boxes[11] = createBox('./public/images/lego_3d-joint.png');
+boxes[12] = createBox('./public/images/lego_3d-joint.png');
+boxes[13] = createBox('./public/images/lego_5-hole-beam.png');
+boxes[14] = createBox('./public/images/lego_5-hole-beam.png');
+boxes[15] = createBox('./public/images/lego_5-hole-beam.png');
+boxes[16] = createBox('./public/images/lego_beige-pin.png');
+boxes[17] = createBox('./public/images/lego_beige-pin.png');
+boxes[18] = createBox('./public/images/lego_beige-pin.png');
+boxes[19] = createBox('./public/images/lego_beige-pin.png');
+boxes[20] = createBox('./public/images/lego_beige-pin.png');
+boxes[21] = createBox('./public/images/lego_blue-pin.png');
+boxes[22] = createBox('./public/images/lego_blue-pin.png');
+boxes[23] = createBox('./public/images/lego_blue-pin.png');
+boxes[24] = createBox('./public/images/lego_blue-pin.png');
+boxes[25] = createBox('./public/images/lego_blue-pin.png');
+boxes[26] = createBox('./public/images/lego_black-pin.png');
+boxes[27] = createBox('./public/images/lego_black-pin.png');
 
 
 // surrounding wall

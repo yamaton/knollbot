@@ -22,10 +22,12 @@ const runner = Runner.create();
 
 // --------------------------------------
 // Screen parameters
-const ScreenWidth = 800;
-const ScreenHeight = 600;
+const ScreenWidth = document.documentElement.clientWidth - 20;
+const ScreenHeight = document.documentElement.clientHeight - 20;
 const ScreenWidthHalf = Math.floor(ScreenWidth / 2);
 const ScreenHeightHalf = Math.floor(ScreenHeight / 2);
+
+// Wall parameters
 const WallThickness = 200;
 const WallMargin = 100;
 const WallVisible = 5;
@@ -36,6 +38,7 @@ const WallOffset = Math.floor(WallThickness / 2) - WallVisible;
 const NumBoxes = 7;
 const allSquare = false;
 
+// For randomly generated objects
 const MinSizeX = 30;
 const MaxSizeX = 170;
 const MinSizeY = 30;

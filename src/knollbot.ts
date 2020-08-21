@@ -12,12 +12,13 @@ const Bodies = Matter.Bodies;
 const Vector = Matter.Vector;
 const Body = Matter.Body;
 
-// create an engine
+// create an engine and runner
 const engine = Engine.create();
 const world = engine.world;
+const runner = Runner.create();
+
 // disable gravity
 world.gravity.y = 0.0;
-const runner = Runner.create();
 
 
 // --------------------------------------
@@ -100,54 +101,61 @@ const bodyOptions = {
 // }
 
 
-const createBox = (imgPath: string): Matter.Body => {
+const setBox = (imgPath: string, idx: number) => {
     let img = new Image();
-    img.src = imgPath;
-    let offsetX = WallOffset + img.width / 2;
-    let offsetY = WallOffset + img.height / 2;
-    let x = utils.randRange(offsetX, ScreenWidth - offsetX);
-    let y = utils.randRange(offsetY, ScreenHeight - offsetY);
-    let options = {
-        ...bodyOptions,
-        render: {
-            sprite: {
-                texture: imgPath,
+    img.addEventListener('load', () => {
+        let offsetX = WallOffset + img.width / 2;
+        let offsetY = WallOffset + img.height / 2;
+        let x = utils.randRange(offsetX, ScreenWidth - offsetX);
+        let y = utils.randRange(offsetY, ScreenHeight - offsetY);
+        let options = {
+            ...bodyOptions,
+            render: {
+                sprite: {
+                    texture: imgPath,
+                }
             }
         }
-    }
-    return Bodies.rectangle(x, y, img.width, img.height, options);
+        boxes[idx] = Bodies.rectangle(x, y, img.width, img.height, options);
+    });
+    img.src = imgPath;
 }
 
+const imgPaths = [
+    './public/images/drivers.jpg',
+    './public/images/mouse.jpg',
+    './public/images/mousepad.jpg',
+    './public/images/purse.jpg',
+    './public/images/sdreader.jpg',
+    './public/images/sphero.jpg',
+    './public/images/wipe.jpg',
+    './public/images/lego_11-hole-beam.png',
+    './public/images/lego_11-hole-beam.png',
+    './public/images/lego_13-hole-beam.png',
+    './public/images/lego_13-hole-beam.png',
+    './public/images/lego_3d-joint.png',
+    './public/images/lego_3d-joint.png',
+    './public/images/lego_5-hole-beam.png',
+    './public/images/lego_5-hole-beam.png',
+    './public/images/lego_5-hole-beam.png',
+    './public/images/lego_beige-pin.png',
+    './public/images/lego_beige-pin.png',
+    './public/images/lego_beige-pin.png',
+    './public/images/lego_beige-pin.png',
+    './public/images/lego_beige-pin.png',
+    './public/images/lego_blue-pin.png',
+    './public/images/lego_blue-pin.png',
+    './public/images/lego_blue-pin.png',
+    './public/images/lego_blue-pin.png',
+    './public/images/lego_blue-pin.png',
+    './public/images/lego_black-pin.png',
+    './public/images/lego_black-pin.png',
+]
 
 const boxes = Array<Matter.Body>(NumBoxes);
-boxes[0] = createBox('./public/images/drivers.jpg');
-boxes[1] = createBox('./public/images/mouse.jpg');
-boxes[2] = createBox('./public/images/mousepad.jpg');
-boxes[3] = createBox('./public/images/purse.jpg');
-boxes[4] = createBox('./public/images/sdreader.jpg');
-boxes[5] = createBox('./public/images/sphero.jpg');
-boxes[6] = createBox('./public/images/wipe.jpg');
-boxes[7] = createBox('./public/images/lego_11-hole-beam.png');
-boxes[8] = createBox('./public/images/lego_11-hole-beam.png');
-boxes[9] = createBox('./public/images/lego_13-hole-beam.png');
-boxes[10] = createBox('./public/images/lego_13-hole-beam.png');
-boxes[11] = createBox('./public/images/lego_3d-joint.png');
-boxes[12] = createBox('./public/images/lego_3d-joint.png');
-boxes[13] = createBox('./public/images/lego_5-hole-beam.png');
-boxes[14] = createBox('./public/images/lego_5-hole-beam.png');
-boxes[15] = createBox('./public/images/lego_5-hole-beam.png');
-boxes[16] = createBox('./public/images/lego_beige-pin.png');
-boxes[17] = createBox('./public/images/lego_beige-pin.png');
-boxes[18] = createBox('./public/images/lego_beige-pin.png');
-boxes[19] = createBox('./public/images/lego_beige-pin.png');
-boxes[20] = createBox('./public/images/lego_beige-pin.png');
-boxes[21] = createBox('./public/images/lego_blue-pin.png');
-boxes[22] = createBox('./public/images/lego_blue-pin.png');
-boxes[23] = createBox('./public/images/lego_blue-pin.png');
-boxes[24] = createBox('./public/images/lego_blue-pin.png');
-boxes[25] = createBox('./public/images/lego_blue-pin.png');
-boxes[26] = createBox('./public/images/lego_black-pin.png');
-boxes[27] = createBox('./public/images/lego_black-pin.png');
+imgPaths.forEach((imgPath, i) => {
+    setBox(imgPath, i);
+})
 
 
 // surrounding wall
@@ -180,10 +188,8 @@ const mouseConstraint = MouseConstraint.create(engine, {
     constraint: constraint,
 });
 
-// add boxes, walls, and mouse constraints
-const blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
-World.add(world, blocks);
-World.add(world, mouseConstraint);
+// `blocks` is to contain boxes, walls, and mouse constraints
+var blocks: Matter.Body[];
 
 
 const applyAntiGravityVector = (src: Matter.Body, tgt: Matter.Body) => {
@@ -360,6 +366,14 @@ Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
 });
 
 
-// equilvalent to Engine.run(engine)
-Runner.run(runner, engine);
-Render.run(render);
+const setupWorld = () => {
+    setTimeout(() => {
+        blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
+        World.add(world, blocks);
+        World.add(world, mouseConstraint);
+        Runner.run(runner, engine);
+        Render.run(render);
+    }, 100);
+}
+
+setupWorld();

@@ -37,14 +37,12 @@ namespace knollbot {
         const Engine = Matter.Engine;
         const Render = Matter.Render;
         const Runner = Matter.Runner;
-        const Composites = Matter.Composites;
         const Constraint = Matter.Constraint;
         const MouseConstraint = Matter.MouseConstraint;
         const Events = Matter.Events;
         const Mouse = Matter.Mouse;
         const World = Matter.World;
         const Bodies = Matter.Bodies;
-        const Vector = Matter.Vector;
         const Body = Matter.Body;
 
         // create an engine and runner
@@ -72,14 +70,6 @@ namespace knollbot {
         // --------------------------------------
         // Object parameters
         const NumBoxes = imgPaths.length;
-        const allSquare = false;
-
-        // For randomly generated objects
-        const MinSizeX = 30;
-        const MaxSizeX = 170;
-        const MinSizeY = 30;
-        const MaxSizeY = 170;
-        const UnitSize = 16;
 
         // --------------------------------------
         // Physics parameters
@@ -117,7 +107,14 @@ namespace knollbot {
             friction: Friction,
         }
 
-        // randomly generated of boxes
+        // randomly generated boxes
+        // const allSquare = false;
+        // const MinSizeX = 30;
+        // const MaxSizeX = 170;
+        // const MinSizeY = 30;
+        // const MaxSizeY = 170;
+        // const UnitSize = 16;
+        //
         // const boxes = Array<Matter.Body>(NumBoxes);
         // for (let i = 0; i < NumBoxes; i++) {
         //     const rectWidth = utils.randRange(MinSizeX, MaxSizeX, UnitSize);
@@ -329,8 +326,6 @@ namespace knollbot {
             if (counter % 300 == 0) {
                 console.log("counter: ", counter);
             }
-            let ufX = new unionfind.UnionFind(blocks.length);
-            let ufY = new unionfind.UnionFind(blocks.length);
 
             if (counter < 180) {
                 for (let i = 0; i < blocks.length; i++) {
@@ -378,7 +373,6 @@ namespace knollbot {
         }
 
         setupWorld();
-
 
         return {
             engine: engine,

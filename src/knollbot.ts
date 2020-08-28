@@ -110,8 +110,8 @@ namespace knollbot {
 
         // --------------------------------------
         // Physics parameters
-        const FrictionAir = 0.3;
-        const Friction = 0.01;
+        const FrictionAir = 0.0;
+        const Friction = 0.0;
         const WallFriction = 0.01;
 
         // Random poking
@@ -131,7 +131,7 @@ namespace knollbot {
                 width: ScreenWidth,
                 height: ScreenHeight,
                 // showAngleIndicator: true,
-                showVelocity: true,
+                showVelocity: false,
                 wireframes: false,    // required to enable sprites!
                 background: '#247c41',
             },

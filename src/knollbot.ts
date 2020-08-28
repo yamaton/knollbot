@@ -309,7 +309,7 @@ namespace knollbot {
             if (!src.isStatic && !tgt.isStatic) {
                 let forceAntiGravity = respulsion.antiGravity(src, tgt, 4);
 
-                // exert attractive force if in the same group
+                // exert attractive force if blocks are of the same group
                 if (utils.areSameWidth(src, tgt) || utils.areSameHeight(src, tgt)) {
                     forceAntiGravity = utils.negate(forceAntiGravity);
                 }
@@ -373,12 +373,23 @@ namespace knollbot {
 
         setupWorld();
 
-        // Rotate block
+        // Rotate a block by double clicking
         document.addEventListener('dblclick', () => {
-            console.log(`--- Double click at t=${counter}---`);
+            console.log(`--- Double click at t=${counter} ---`);
             blocks
                 .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
                 .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
+        });
+
+        // Rotate a block by touch rotation
+        document.addEventListener('touchmove', (e) => {
+            let touch = e.changedTouches.item(0);
+            let angleInRadian = Math.PI / 180 * (touch?.rotationAngle ?? 0);
+            console.log(`--- Touch rotation activated at t=${counter} ---`);
+            console.log(`    rotation angle = ${touch?.rotationAngle} (deg)`)
+            blocks
+                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
+                .forEach(b => Matter.Body.rotate(b, angleInRadian));
         });
 
         return {

@@ -268,15 +268,15 @@ namespace knollbot {
 
 
         interface EdgeExtended extends graph.Edge {
-            posSrc: utils.Vector,
-            posTgt: utils.Vector,
-            idxSrc: number,
-            idxTgt: number,
+            posSrc: utils.Vector;
+            posTgt: utils.Vector;
+            idxSrc: number;
+            idxTgt: number;
         }
 
 
         interface GraphExtended extends graph.Graph {
-            edges: EdgeExtended[],
+            edges: EdgeExtended[];
         }
 
 

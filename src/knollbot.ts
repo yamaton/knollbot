@@ -361,7 +361,6 @@ namespace knollbot {
             }
         });
 
-
         const setupWorld = () => {
             setTimeout(() => {
                 blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
@@ -373,6 +372,14 @@ namespace knollbot {
         }
 
         setupWorld();
+
+        // Rotate block
+        document.addEventListener('dblclick', () => {
+            console.log(`--- Double click at t=${counter}---`);
+            blocks
+                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
+                .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
+        });
 
         return {
             engine: engine,

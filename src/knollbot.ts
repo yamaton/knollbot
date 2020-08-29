@@ -476,5 +476,3 @@ namespace knollbot {
 
     }
 }
-
-knollbot.main();

@@ -70,6 +70,10 @@ namespace knollbot {
         //     './public/images/lego_black-pin.png',
         // ]
 
+        interface WorldExtended extends Matter.World {
+            pokeScale: number;
+        }
+
         // module aliases
         const Engine = Matter.Engine;
         const Render = Matter.Render;
@@ -84,7 +88,7 @@ namespace knollbot {
 
         // create an engine and runner
         const engine = Engine.create();
-        const world = engine.world;
+        const world = engine.world as WorldExtended;
         const runner = Runner.create();
 
         // disable gravity
@@ -115,7 +119,8 @@ namespace knollbot {
         const WallFriction = 0.01;
 
         // Random poking
-        const PokeScale = 1.3;
+        const PokeScale = 0.05;
+        world.pokeScale = PokeScale;
 
         // Alignment force
         const AlignmentForceCoeff = 0.0010;
@@ -142,7 +147,7 @@ namespace knollbot {
             inertia: Infinity,
             frictionAir: FrictionAir,
             friction: Friction,
-        }
+        };
 
         // // generate boxes randomly
         // const generateRandomBoxes = (): Matter.Body[] => {
@@ -265,7 +270,10 @@ namespace knollbot {
         const applyRandomPoke = (block: Matter.Body) => {
             if (!block.isStatic) {
                 Body.applyForce(block, block.position,
-                    { x: utils.randRange(0, PokeScale), y: utils.randRange(0, PokeScale) });
+                    {
+                        x: world.pokeScale * utils.randn(),
+                        y: world.pokeScale * utils.randn(),
+                    });
             }
         }
 
@@ -372,14 +380,12 @@ namespace knollbot {
                     for (let j = i + 1; j < blocks.length; j++) {
                         applyGrouping(blocks[i], blocks[j]);
                     }
-                    applyRandomPoke(blocks[i]);
                 }
             } else if (counter < 240) {
                 for (let i = 0; i < blocks.length; i++) {
                     for (let j = i + 1; j < blocks.length; j++) {
                         applyAntiGravityVector(blocks[i], blocks[j]);
                     }
-                    applyRandomPoke(blocks[i]);
                 }
             } else {
                 // after 60 frames
@@ -389,8 +395,8 @@ namespace knollbot {
                 let edgeMstY = graph.kruskal(gY) as EdgeExtended[];
 
                 // alignment force occurs at MST edges only
-                edgeMstX.forEach(e => { applyAlignmentForceX(blocks, e) });
-                edgeMstY.forEach(e => { applyAlignmentForceY(blocks, e) });
+                edgeMstX.forEach(e => applyAlignmentForceX(blocks, e));
+                edgeMstY.forEach(e => applyAlignmentForceY(blocks, e));
 
                 // antigravity force occurs at disconnected nodes
                 let ufX = new unionfind.UnionFind(gX.vertices);
@@ -399,6 +405,8 @@ namespace knollbot {
                 gY.edges.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
                 applyAntiGravityDisjoint(blocks, ufX, ufY);
             }
+
+            blocks.forEach(applyRandomPoke);
         });
 
         const setupWorld = () => {

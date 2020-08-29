@@ -1,74 +1,43 @@
 namespace knollbot {
 
+    const imgPaths = [
+        "./public/lego/blue_1x2.png",
+        "./public/lego/blue_1x2.png",
+        "./public/lego/blue_1x2.png",
+        "./public/lego/blue_1x2.png",
+        "./public/lego/blue_1x2.png",
+        "./public/lego/blue_1x3.png",
+        "./public/lego/blue_1x3.png",
+        "./public/lego/green_1x2.png",
+        "./public/lego/green_1x2.png",
+        "./public/lego/green_1x2.png",
+        "./public/lego/green_1x2.png",
+        "./public/lego/green_2x2.png",
+        "./public/lego/green_2x2.png",
+        "./public/lego/orange_2x1.png",
+        "./public/lego/orange_2x1.png",
+        "./public/lego/orange_2x1.png",
+        "./public/lego/orange_2x1.png",
+        "./public/lego/orange_2x1.png",
+        "./public/lego/orange_2x1.png",
+        "./public/lego/orange_2x3.png",
+        "./public/lego/orange_2x3.png",
+        "./public/lego/red_1x4.png",
+        "./public/lego/red_1x4.png",
+        "./public/lego/red_1x4.png",
+        "./public/lego/red_2x2.png",
+        "./public/lego/red_2x2.png",
+        "./public/lego/yellow_2x1.png",
+        "./public/lego/yellow_2x1.png",
+        "./public/lego/yellow_2x1.png",
+        "./public/lego/yellow_2x1.png",
+        "./public/lego/yellow_2x1.png",
+        "./public/lego/yellow_3x2.png",
+        "./public/lego/yellow_3x2.png",
+        "./public/lego/yellow_3x2.png",
+    ]
+
     export const main = () => {
-
-        const imgPaths = [
-            "./public/lego/blue_1x2.png",
-            "./public/lego/blue_1x2.png",
-            "./public/lego/blue_1x2.png",
-            "./public/lego/blue_1x2.png",
-            "./public/lego/blue_1x2.png",
-            "./public/lego/blue_1x3.png",
-            "./public/lego/blue_1x3.png",
-            "./public/lego/green_1x2.png",
-            "./public/lego/green_1x2.png",
-            "./public/lego/green_1x2.png",
-            "./public/lego/green_1x2.png",
-            "./public/lego/green_2x2.png",
-            "./public/lego/green_2x2.png",
-            "./public/lego/orange_2x1.png",
-            "./public/lego/orange_2x1.png",
-            "./public/lego/orange_2x1.png",
-            "./public/lego/orange_2x1.png",
-            "./public/lego/orange_2x1.png",
-            "./public/lego/orange_2x1.png",
-            "./public/lego/orange_2x3.png",
-            "./public/lego/orange_2x3.png",
-            "./public/lego/red_1x4.png",
-            "./public/lego/red_1x4.png",
-            "./public/lego/red_1x4.png",
-            "./public/lego/red_2x2.png",
-            "./public/lego/red_2x2.png",
-            "./public/lego/yellow_2x1.png",
-            "./public/lego/yellow_2x1.png",
-            "./public/lego/yellow_2x1.png",
-            "./public/lego/yellow_2x1.png",
-            "./public/lego/yellow_2x1.png",
-            "./public/lego/yellow_3x2.png",
-            "./public/lego/yellow_3x2.png",
-            "./public/lego/yellow_3x2.png",
-        ]
-
-        // const imgPaths = [
-        //     './public/images/drivers.jpg',
-        //     './public/images/mouse.jpg',
-        //     './public/images/mousepad.jpg',
-        //     './public/images/purse.jpg',
-        //     './public/images/sdreader.jpg',
-        //     './public/images/sphero.jpg',
-        //     './public/images/wipe.jpg',
-        //     './public/images/lego_11-hole-beam.png',
-        //     './public/images/lego_11-hole-beam.png',
-        //     './public/images/lego_13-hole-beam.png',
-        //     './public/images/lego_13-hole-beam.png',
-        //     './public/images/lego_3d-joint.png',
-        //     './public/images/lego_3d-joint.png',
-        //     './public/images/lego_5-hole-beam.png',
-        //     './public/images/lego_5-hole-beam.png',
-        //     './public/images/lego_5-hole-beam.png',
-        //     './public/images/lego_beige-pin.png',
-        //     './public/images/lego_beige-pin.png',
-        //     './public/images/lego_beige-pin.png',
-        //     './public/images/lego_beige-pin.png',
-        //     './public/images/lego_beige-pin.png',
-        //     './public/images/lego_blue-pin.png',
-        //     './public/images/lego_blue-pin.png',
-        //     './public/images/lego_blue-pin.png',
-        //     './public/images/lego_blue-pin.png',
-        //     './public/images/lego_blue-pin.png',
-        //     './public/images/lego_black-pin.png',
-        //     './public/images/lego_black-pin.png',
-        // ]
 
         interface WorldExtended extends Matter.World {
             pokeScale: number;
@@ -79,22 +48,10 @@ namespace knollbot {
             groupingCoeff: number;
         }
 
-        // module aliases
-        const Engine = Matter.Engine;
-        const Render = Matter.Render;
-        const Runner = Matter.Runner;
-        const Constraint = Matter.Constraint;
-        const MouseConstraint = Matter.MouseConstraint;
-        const Events = Matter.Events;
-        const Mouse = Matter.Mouse;
-        const World = Matter.World;
-        const Bodies = Matter.Bodies;
-        const Body = Matter.Body;
-
         // create an engine and runner
-        const engine = Engine.create();
+        const engine = Matter.Engine.create();
         const world = engine.world as WorldExtended;
-        const runner = Runner.create();
+        const runner = Matter.Runner.create();
 
         // disable gravity
         world.gravity.y = 0.0;
@@ -139,7 +96,7 @@ namespace knollbot {
 
         // --------------------------------------
         // create a renderer
-        const render = Render.create({
+        const render = Matter.Render.create({
             element: document.body,
             engine: engine,
             options: {
@@ -179,7 +136,7 @@ namespace knollbot {
         //         const offsetY = WallOffset + rectHeight / 2;
         //         const x = utils.randRange(offsetX, ScreenWidth - offsetX);
         //         const y = utils.randRange(offsetY, ScreenHeight - offsetY);
-        //         boxes[i] = Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
+        //         boxes[i] = Matter.Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
         //     }
         //     return boxes;
         // };
@@ -200,7 +157,7 @@ namespace knollbot {
                         }
                     }
                 }
-                boxes[idx] = Bodies.rectangle(x, y, img.width, img.height, options);
+                boxes[idx] = Matter.Bodies.rectangle(x, y, img.width, img.height, options);
             });
             img.src = imgPath;
         }
@@ -217,15 +174,39 @@ namespace knollbot {
             friction: WallFriction,
         }
 
-        const wallTop = Bodies.rectangle(ScreenWidthHalf, -WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
-        const wallBottom = Bodies.rectangle(ScreenWidthHalf, ScreenHeight + WallOffset, ScreenWidth + WallMargin, WallThickness, wallOptions);
-        const wallLeft = Bodies.rectangle(- WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
-        const wallRight = Bodies.rectangle(ScreenWidth + WallOffset, ScreenHeightHalf, WallThickness, ScreenHeight + WallMargin, wallOptions);
+        const wallTop = Matter.Bodies.rectangle(
+            ScreenWidthHalf,
+            -WallOffset,
+            ScreenWidth + WallMargin,
+            WallThickness,
+            wallOptions,
+        );
+        const wallBottom = Matter.Bodies.rectangle(
+            ScreenWidthHalf,
+            ScreenHeight + WallOffset,
+            ScreenWidth + WallMargin,
+            WallThickness,
+            wallOptions,
+        );
+        const wallLeft = Matter.Bodies.rectangle(
+            - WallOffset,
+            ScreenHeightHalf,
+            WallThickness,
+            ScreenHeight + WallMargin,
+            wallOptions,
+        );
+        const wallRight = Matter.Bodies.rectangle(
+            ScreenWidth + WallOffset,
+            ScreenHeightHalf,
+            WallThickness,
+            ScreenHeight + WallMargin,
+            wallOptions,
+        );
 
 
         // mouse and constraint
-        const mouse = Mouse.create(render.canvas);
-        const constraint = Constraint.create(
+        const mouse = Matter.Mouse.create(render.canvas);
+        const constraint = Matter.Constraint.create(
             {
                 // Must define pointA and pointB unlike IConstraintDefinition interface
                 pointA: mouse.position,
@@ -236,10 +217,12 @@ namespace knollbot {
                 },
             },
         );
-        const mouseConstraint = MouseConstraint.create(engine, {
+        const mouseConstraint = Matter.MouseConstraint.create(
+            engine, {
             mouse: mouse,
             constraint: constraint,
-        });
+        }
+        );
 
         // `blocks` is to contain boxes, walls, and mouse constraints
         var blocks: Matter.Body[];
@@ -254,8 +237,8 @@ namespace knollbot {
             if (!src.isStatic && !tgt.isStatic) {
                 let forceAntiGravity = f(src, tgt);
                 // antigravity exerts on the center of a block
-                Body.applyForce(tgt, tgt.position, forceAntiGravity);
-                Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
+                Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
+                Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
             }
         }
 
@@ -277,8 +260,8 @@ namespace knollbot {
                         if (ufY.areConnected(i, j)) {
                             force.y = 0;
                         }
-                        Body.applyForce(tgt, tgt.position, force)
-                        Body.applyForce(src, src.position, utils.negate(force));
+                        Matter.Body.applyForce(tgt, tgt.position, force)
+                        Matter.Body.applyForce(src, src.position, utils.negate(force));
                     }
                 }
             }
@@ -287,7 +270,7 @@ namespace knollbot {
 
         const applyRandomPoke = (block: Matter.Body) => {
             if (!block.isStatic) {
-                Body.applyForce(block, block.position,
+                Matter.Body.applyForce(block, block.position,
                     {
                         x: world.pokeScale * utils.randn(),
                         y: world.pokeScale * utils.randn(),
@@ -352,8 +335,8 @@ namespace knollbot {
             let forceOnTgt = { x: force, y: 0 };
             let src = blocks[edge.idxSrc];
             let tgt = blocks[edge.idxTgt];
-            Body.applyForce(tgt, tgt.position, forceOnTgt);
-            Body.applyForce(src, src.position, utils.negate(forceOnTgt));
+            Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
+            Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
         }
 
         const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
@@ -365,8 +348,8 @@ namespace knollbot {
             let j = edge.idxTgt;
             let src = blocks[i];
             let tgt = blocks[j];
-            Body.applyForce(tgt, tgt.position, forceOnTgt);
-            Body.applyForce(src, src.position, utils.negate(forceOnTgt));
+            Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
+            Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
         }
 
 
@@ -382,14 +365,14 @@ namespace knollbot {
                     forceAntiGravity = utils.negate(forceAntiGravity);
                 }
                 // antigravity exerts on the center of a block
-                Body.applyForce(tgt, tgt.position, forceAntiGravity);
-                Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
+                Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
+                Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
             }
         }
 
 
         var counter = 0;
-        Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
+        Matter.Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
             counter += 1;
             if (counter % 300 == 0) {
                 console.log("counter: ", counter);
@@ -435,10 +418,10 @@ namespace knollbot {
         const setupWorld = () => {
             setTimeout(() => {
                 blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
-                World.add(world, blocks);
-                World.add(world, mouseConstraint);
-                Runner.run(runner, engine);
-                Render.run(render);
+                Matter.World.add(world, blocks);
+                Matter.World.add(world, mouseConstraint);
+                Matter.Runner.run(runner, engine);
+                Matter.Render.run(render);
             }, 100);
         }
 

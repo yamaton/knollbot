@@ -1,10 +1,7 @@
 namespace repulsion {
 
-    const AntiGravityRangeFactor = 3.0;
-    const AntiGravityConst = 100.0;
-
-    export const antiGravityManhattan = (src: Matter.Body, tgt: Matter.Body): Matter.Vector => {
-        let g = AntiGravityConst;
+    export const antiGravityManhattan = (src: Matter.Body, tgt: Matter.Body, coeff = 100): Matter.Vector => {
+        let g = coeff;
         let dx = utils.distHoriz(src.position, tgt.position);
         let dy = utils.distVerti(src.position, tgt.position);
         // characteristic size
@@ -19,11 +16,11 @@ namespace repulsion {
     }
 
 
-    export const antiGravityRanged = (src: Matter.Body, tgt: Matter.Body): Matter.Vector => {
+    export const antiGravityRanged = (src: Matter.Body, tgt: Matter.Body, coeff = 100, rangeFactor = 3.0): Matter.Vector => {
         let d = utils.distEuclid(src.position, tgt.position);
         // characteristic size
         let charSize = 0.5 * (Math.sqrt(src.area) + Math.sqrt(tgt.area));
-        let antiGravityMag = (d < AntiGravityRangeFactor * charSize) ? AntiGravityConst / d ** 2 : 0;
+        let antiGravityMag = (d < rangeFactor * charSize) ? coeff / d ** 2 : 0;
         let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
         let force = {
             x: antiGravityMag * unitSrcToTgt.x,
@@ -32,9 +29,10 @@ namespace repulsion {
         return force;
     }
 
-    export const antiGravity = (src: Matter.Body, tgt: Matter.Body, multiplier = 1.0): Matter.Vector => {
+
+    export const antiGravity = (src: Matter.Body, tgt: Matter.Body, coeff = 100): Matter.Vector => {
         let d = utils.distEuclid(src.position, tgt.position);
-        let antiGravityMag = multiplier * AntiGravityConst / d ** 2;
+        let antiGravityMag = coeff / d ** 2;
         let unitSrcToTgt = utils.unitVec(src.position, tgt.position)
         let force = {
             x: antiGravityMag * unitSrcToTgt.x,

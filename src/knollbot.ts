@@ -72,6 +72,11 @@ namespace knollbot {
 
         interface WorldExtended extends Matter.World {
             pokeScale: number;
+            alignmentForceCoeff: number;
+            alignmentForceRange: number;
+            repulsionCoeff: number;
+            repulsionRange: number;
+            groupingCoeff: number;
         }
 
         // module aliases
@@ -113,19 +118,24 @@ namespace knollbot {
         const NumBoxes = imgPaths.length;
 
         // --------------------------------------
-        // Physics parameters
+        // Body parameters
         const FrictionAir = 0.0;
         const Friction = 0.0;
         const WallFriction = 0.01;
 
         // Random poking
-        const PokeScale = 0.05;
-        world.pokeScale = PokeScale;
+        world.pokeScale = 0.05;
 
         // Alignment force
-        const AlignmentForceCoeff = 0.0010;
-        const AlignmentForceRange = 30;  // in pixels
+        world.alignmentForceCoeff = 0.0010;
+        world.alignmentForceRange = 30;  // pixels
 
+        // AntiGravity force
+        world.repulsionCoeff = 100;
+        world.repulsionRange = 3.0;      // NOT pixels
+
+        // Grouping attraction/repulsion
+        world.groupingCoeff = 400;
 
         // --------------------------------------
         // create a renderer
@@ -236,9 +246,13 @@ namespace knollbot {
 
 
         const applyAntiGravityVector = (src: Matter.Body, tgt: Matter.Body) => {
+            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
+                return repulsion.antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
+            };
+
             // wall should not be involved
             if (!src.isStatic && !tgt.isStatic) {
-                let forceAntiGravity = repulsion.antiGravityRanged(src, tgt);
+                let forceAntiGravity = f(src, tgt);
                 // antigravity exerts on the center of a block
                 Body.applyForce(tgt, tgt.position, forceAntiGravity);
                 Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
@@ -247,12 +261,16 @@ namespace knollbot {
 
 
         const applyAntiGravityDisjoint = (blocks: Matter.Body[], ufX: unionfind.UnionFind, ufY: unionfind.UnionFind) => {
+            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
+                return repulsion.antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
+            };
+
             for (let i = 0; i < blocks.length; i++) {
                 for (let j = i + 1; j < blocks.length; j++) {
                     let src = blocks[i];
                     let tgt = blocks[j];
                     if (!src.isStatic && !tgt.isStatic) {
-                        let force = repulsion.antiGravityRanged(src, tgt);
+                        let force = f(src, tgt);
                         if (ufX.areConnected(i, j)) {
                             force.x = 0;
                         }
@@ -300,7 +318,7 @@ namespace knollbot {
                     let src = blocks[i];
                     let tgt = blocks[j];
                     let [posSrc, posTgt, dist] = pointPairFunc(src, tgt);
-                    if (dist < AlignmentForceRange && (!src.isStatic || !tgt.isStatic)) {
+                    if (dist < world.alignmentForceRange && (!src.isStatic || !tgt.isStatic)) {
                         let e: EdgeExtended = {
                             weight: dist,
                             pair: utils.makeUnorderedPair(i, j),
@@ -330,7 +348,7 @@ namespace knollbot {
         const applyAlignmentForceX = (blocks: Matter.Body[], edge: EdgeExtended) => {
             let sign = (edge.posSrc.x < edge.posTgt.x) ? -1 : 1;
             let dist = edge.weight;
-            let force = AlignmentForceCoeff * sign * dist;
+            let force = world.alignmentForceCoeff * sign * dist;
             let forceOnTgt = { x: force, y: 0 };
             let src = blocks[edge.idxSrc];
             let tgt = blocks[edge.idxTgt];
@@ -341,7 +359,7 @@ namespace knollbot {
         const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
             let sign = (edge.posSrc.y < edge.posTgt.y) ? -1 : 1;
             let dist = edge.weight;
-            let force = AlignmentForceCoeff * sign * dist;
+            let force = world.alignmentForceCoeff * sign * dist;
             let forceOnTgt = { x: 0, y: force };
             let i = edge.idxSrc;
             let j = edge.idxTgt;
@@ -353,9 +371,11 @@ namespace knollbot {
 
 
         const applyGrouping = (src: Matter.Body, tgt: Matter.Body) => {
+            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => repulsion.antiGravity(s, t, world.groupingCoeff);
+
             // wall should not be involved
             if (!src.isStatic && !tgt.isStatic) {
-                let forceAntiGravity = repulsion.antiGravity(src, tgt, 4);
+                let forceAntiGravity = f(src, tgt);
 
                 // exert attractive force if blocks are of the same group
                 if (utils.areSameWidth(src, tgt) || utils.areSameHeight(src, tgt)) {

@@ -119,7 +119,7 @@ namespace knollbot {
 
         // --------------------------------------
         // Body parameters
-        const FrictionAir = 0.0;
+        const FrictionAir = 0.01;
         const Friction = 0.0;
         const WallFriction = 0.01;
 
@@ -426,6 +426,9 @@ namespace knollbot {
                 applyAntiGravityDisjoint(blocks, ufX, ufY);
             }
 
+            if (counter % 10 == 9) {
+                world.pokeScale *= 0.97;
+            }
             blocks.forEach(applyRandomPoke);
         });
 

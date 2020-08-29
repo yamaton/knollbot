@@ -218,10 +218,11 @@ namespace knollbot {
             },
         );
         const mouseConstraint = Matter.MouseConstraint.create(
-            engine, {
-            mouse: mouse,
-            constraint: constraint,
-        }
+            engine,
+            {
+                mouse: mouse,
+                constraint: constraint,
+            }
         );
 
         // `blocks` is to contain boxes, walls, and mouse constraints
@@ -298,11 +299,11 @@ namespace knollbot {
             let edges: EdgeExtended[] = [];
             for (let i = 0; i < blocks.length; i++) {
                 for (let j = i + 1; j < blocks.length; j++) {
-                    let src = blocks[i];
-                    let tgt = blocks[j];
-                    let [posSrc, posTgt, dist] = pointPairFunc(src, tgt);
+                    const src = blocks[i];
+                    const tgt = blocks[j];
+                    const [posSrc, posTgt, dist] = pointPairFunc(src, tgt);
                     if (dist < world.alignmentForceRange && (!src.isStatic || !tgt.isStatic)) {
-                        let e: EdgeExtended = {
+                        const e = {
                             weight: dist,
                             pair: utils.makeUnorderedPair(i, j),
                             posSrc: posSrc,
@@ -329,25 +330,23 @@ namespace knollbot {
         }
 
         const applyAlignmentForceX = (blocks: Matter.Body[], edge: EdgeExtended) => {
-            let sign = (edge.posSrc.x < edge.posTgt.x) ? -1 : 1;
-            let dist = edge.weight;
-            let force = world.alignmentForceCoeff * sign * dist;
-            let forceOnTgt = { x: force, y: 0 };
-            let src = blocks[edge.idxSrc];
-            let tgt = blocks[edge.idxTgt];
+            const sign = (edge.posSrc.x < edge.posTgt.x) ? -1 : 1;
+            const dist = edge.weight;
+            const force = world.alignmentForceCoeff * sign * dist;
+            const forceOnTgt = { x: force, y: 0 };
+            const src = blocks[edge.idxSrc];
+            const tgt = blocks[edge.idxTgt];
             Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
             Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
         }
 
         const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
-            let sign = (edge.posSrc.y < edge.posTgt.y) ? -1 : 1;
-            let dist = edge.weight;
-            let force = world.alignmentForceCoeff * sign * dist;
-            let forceOnTgt = { x: 0, y: force };
-            let i = edge.idxSrc;
-            let j = edge.idxTgt;
-            let src = blocks[i];
-            let tgt = blocks[j];
+            const sign = (edge.posSrc.y < edge.posTgt.y) ? -1 : 1;
+            const dist = edge.weight;
+            const force = world.alignmentForceCoeff * sign * dist;
+            const forceOnTgt = { x: 0, y: force };
+            const src = blocks[edge.idxSrc];
+            const tgt = blocks[edge.idxTgt];
             Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
             Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
         }

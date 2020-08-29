@@ -238,7 +238,7 @@ namespace knollbot {
         const applyAntiGravityVector = (src: Matter.Body, tgt: Matter.Body) => {
             // wall should not be involved
             if (!src.isStatic && !tgt.isStatic) {
-                let forceAntiGravity = respulsion.antiGravityRanged(src, tgt);
+                let forceAntiGravity = repulsion.antiGravityRanged(src, tgt);
                 // antigravity exerts on the center of a block
                 Body.applyForce(tgt, tgt.position, forceAntiGravity);
                 Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
@@ -252,7 +252,7 @@ namespace knollbot {
                     let src = blocks[i];
                     let tgt = blocks[j];
                     if (!src.isStatic && !tgt.isStatic) {
-                        let force = respulsion.antiGravityRanged(src, tgt);
+                        let force = repulsion.antiGravityRanged(src, tgt);
                         if (ufX.areConnected(i, j)) {
                             force.x = 0;
                         }
@@ -355,7 +355,7 @@ namespace knollbot {
         const applyGrouping = (src: Matter.Body, tgt: Matter.Body) => {
             // wall should not be involved
             if (!src.isStatic && !tgt.isStatic) {
-                let forceAntiGravity = respulsion.antiGravity(src, tgt, 4);
+                let forceAntiGravity = repulsion.antiGravity(src, tgt, 4);
 
                 // exert attractive force if blocks are of the same group
                 if (utils.areSameWidth(src, tgt) || utils.areSameHeight(src, tgt)) {

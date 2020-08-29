@@ -1,4 +1,4 @@
-namespace respulsion {
+namespace repulsion {
 
     const AntiGravityRangeFactor = 3.0;
     const AntiGravityConst = 100.0;

@@ -1,4 +1,4 @@
-namespace unionfind {
+namespace UnionFind {
   type Node = string | number;
   type Index = number;
 
@@ -11,12 +11,12 @@ namespace unionfind {
     constructor(arg: number | Node[]) {
       if (typeof arg == 'number') {
         this.len = arg;
-        this.translate = new Map(utils.range(arg).map((_, i) => [i, i]));
+        this.translate = new Map(Utils.range(arg).map((_, i) => [i, i]));
       } else {
         this.len = arg.length;
         this.translate = new Map(arg.map((v, i) => [v, i]));
       }
-      this.parent = utils.range(this.len).map(_ => -1);
+      this.parent = Utils.range(this.len).map(_ => -1);
     }
 
     _isRoot(x: Index): boolean {
@@ -36,7 +36,7 @@ namespace unionfind {
 
     /**
      * Fetch index. Add to this._translate if absent.
-     * @param x 
+     * @param x
      */
     _index(x: Node): Index {
       let tmp = this.translate.get(x);
@@ -74,7 +74,7 @@ namespace unionfind {
     }
 
     getRootAll(): Index[] {
-      return utils.range(this.len).map(i => this._root(i));
+      return Utils.range(this.len).map(i => this._root(i));
     };
   }
 

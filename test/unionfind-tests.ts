@@ -4,7 +4,7 @@ describe('UnionFind', () => {
   let assert = chai.assert;
 
   it('takes number of nodes, and check if two nodes are disjoint', () => {
-    let uf = new unionfind.UnionFind(10);
+    let uf = new UnionFind.UnionFind(10);
     assert.isFalse(uf.areConnected(3, 4));
     uf.connect(3, 4);
     uf.connect(5, 6)
@@ -18,7 +18,7 @@ describe('UnionFind', () => {
   });
 
   it('takes array of numbers as nodes, and check if two nodes are disjoint', () => {
-    let uf = new unionfind.UnionFind(utils.range(10));
+    let uf = new UnionFind.UnionFind(Utils.range(10));
     assert.isFalse(uf.areConnected(3, 4));
     uf.connect(3, 4);
     uf.connect(5, 6)
@@ -34,7 +34,7 @@ describe('UnionFind', () => {
 
   it('takes array of strings as nodes, and check if two nodes are disjoint', () => {
     let nodes = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-    let uf = new unionfind.UnionFind(nodes);
+    let uf = new UnionFind.UnionFind(nodes);
     assert.isFalse(uf.areConnected('d', 'f'));
     uf.connect('d', 'e');
     uf.connect('f', 'g')

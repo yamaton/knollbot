@@ -1,10 +1,10 @@
 // Minimum spanning tree
 
-namespace graph {
+namespace Graph {
   export type Vertex = number | string;
 
   export interface Edge {
-    pair: utils.Pair<Vertex>,
+    pair: Utils.Pair<Vertex>,
     weight: number,
     [propName: string]: any;
   };
@@ -16,7 +16,7 @@ namespace graph {
   /** Kruskal for MST O(E log E)
    */
   export const kruskal = (g: Graph): Edge[] => {
-    const uf = new unionfind.UnionFind(g.vertices);
+    const uf = new UnionFind.UnionFind(g.vertices);
     const sortedEdges = g.edges.sort((e1, e2) => e1.weight - e2.weight);
     let res: Edge[] = [];
     for (let e of sortedEdges) {

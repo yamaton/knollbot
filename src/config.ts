@@ -1,4 +1,4 @@
-namespace config {
+namespace Config {
 
     const imgRoot = "./public/lego/";
     const imgNames = [
@@ -40,7 +40,7 @@ namespace config {
 
     export const imgPaths = imgNames.map(name => imgRoot + name);
 
-    export const Config = {
+    export const params = {
         // Body parameters
         frictionAir: 0.01,
         friction: 0.0,

@@ -1,4 +1,4 @@
-namespace utils {
+namespace Utils {
     export const arrMax = (xs: number[]): number => xs.reduce((acc, x) => Math.max(acc, x), -Infinity);
     export const arrMin = (xs: number[]): number => xs.reduce((acc, x) => Math.min(acc, x), Infinity);
     export const arrSum = (xs: number[]): number => xs.reduce((acc, x) => acc + x, 0);

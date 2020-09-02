@@ -1,42 +1,5 @@
 namespace knollbot {
 
-    const imgPaths = [
-        "./public/lego/blue_1x2.png",
-        "./public/lego/blue_1x2.png",
-        "./public/lego/blue_1x2.png",
-        "./public/lego/blue_1x2.png",
-        "./public/lego/blue_1x2.png",
-        "./public/lego/blue_1x3.png",
-        "./public/lego/blue_1x3.png",
-        "./public/lego/green_1x2.png",
-        "./public/lego/green_1x2.png",
-        "./public/lego/green_1x2.png",
-        "./public/lego/green_1x2.png",
-        "./public/lego/green_2x2.png",
-        "./public/lego/green_2x2.png",
-        "./public/lego/orange_2x1.png",
-        "./public/lego/orange_2x1.png",
-        "./public/lego/orange_2x1.png",
-        "./public/lego/orange_2x1.png",
-        "./public/lego/orange_2x1.png",
-        "./public/lego/orange_2x1.png",
-        "./public/lego/orange_2x3.png",
-        "./public/lego/orange_2x3.png",
-        "./public/lego/red_1x4.png",
-        "./public/lego/red_1x4.png",
-        "./public/lego/red_1x4.png",
-        "./public/lego/red_2x2.png",
-        "./public/lego/red_2x2.png",
-        "./public/lego/yellow_2x1.png",
-        "./public/lego/yellow_2x1.png",
-        "./public/lego/yellow_2x1.png",
-        "./public/lego/yellow_2x1.png",
-        "./public/lego/yellow_2x1.png",
-        "./public/lego/yellow_3x2.png",
-        "./public/lego/yellow_3x2.png",
-        "./public/lego/yellow_3x2.png",
-    ]
-
     export const main = () => {
 
         interface WorldExtended extends Matter.World {
@@ -56,6 +19,11 @@ namespace knollbot {
         // disable gravity
         world.gravity.y = 0.0;
 
+        // get image paths
+        const imgPaths = config.imgPaths;
+
+        // parameters as Config
+        const Config = config.Config;
 
         // --------------------------------------
         // Screen parameters
@@ -75,24 +43,19 @@ namespace knollbot {
         const NumBoxes = imgPaths.length;
 
         // --------------------------------------
-        // Body parameters
-        const FrictionAir = 0.01;
-        const Friction = 0.0;
-        const WallFriction = 0.01;
-
         // Random poking
-        world.pokeScale = 0.05;
+        world.pokeScale = Config.pokeScale;
 
         // Alignment force
-        world.alignmentForceCoeff = 0.0010;
-        world.alignmentForceRange = 30;  // pixels
+        world.alignmentForceCoeff = Config.alignmentForceCoeff;
+        world.alignmentForceRange = Config.alignmentForceRange;  // pixels
 
         // AntiGravity force
-        world.repulsionCoeff = 100;
-        world.repulsionRange = 3.0;      // NOT pixels
+        world.repulsionCoeff = Config.repulsionCoeff;
+        world.repulsionRange = Config.repulsionRange;      // NOT pixels
 
         // Grouping attraction/repulsion
-        world.groupingCoeff = 400;
+        world.groupingCoeff = Config.groupingCoeff;
 
         // --------------------------------------
         // create a renderer
@@ -112,8 +75,8 @@ namespace knollbot {
         // create two boxes
         const bodyOptions = {
             inertia: Infinity,
-            frictionAir: FrictionAir,
-            friction: Friction,
+            frictionAir: Config.frictionAir,
+            friction: Config.friction,
         };
 
         // // generate boxes randomly
@@ -171,7 +134,7 @@ namespace knollbot {
         // surrounding wall
         const wallOptions = {
             isStatic: true,
-            friction: WallFriction,
+            friction: config.Config.wallFriction,
         }
 
         const wallTop = Matter.Bodies.rectangle(
@@ -409,7 +372,7 @@ namespace knollbot {
             }
 
             if (counter % 10 == 9) {
-                world.pokeScale *= 0.97;
+                world.pokeScale *= Config.pokeScaleDecay;
             }
             blocks.forEach(applyRandomPoke);
         });

@@ -1,3 +1,11 @@
+import * as Matter from "matter-js";
+import UnionFind from "./unionfind";
+import { Edge, Graph, kruskal } from "./graph";
+import { antiGravity, antiGravityRanged } from "./repulsion";
+import * as utils from "./utils";
+import { imgPaths, params } from "./config";
+
+
 namespace knollbot {
 
     export const main = () => {
@@ -18,12 +26,6 @@ namespace knollbot {
 
         // disable gravity
         world.gravity.y = 0.0;
-
-        // get image paths
-        const imgPaths = Config.imgPaths;
-
-        // parameters as Config
-        const params = Config.params;
 
         // --------------------------------------
         // Screen parameters
@@ -110,8 +112,8 @@ namespace knollbot {
             img.addEventListener('load', () => {
                 let offsetX = WallOffset + img.width / 2;
                 let offsetY = WallOffset + img.height / 2;
-                let x = Utils.randRange(offsetX, ScreenWidth - offsetX);
-                let y = Utils.randRange(offsetY, ScreenHeight - offsetY);
+                let x = utils.randRange(offsetX, ScreenWidth - offsetX);
+                let y = utils.randRange(offsetY, ScreenHeight - offsetY);
                 let options = {
                     ...bodyOptions,
                     render: {
@@ -134,7 +136,7 @@ namespace knollbot {
         // surrounding wall
         const wallOptions = {
             isStatic: true,
-            friction: Config.params.wallFriction,
+            friction: params.wallFriction,
         }
 
         const wallTop = Matter.Bodies.rectangle(
@@ -194,7 +196,7 @@ namespace knollbot {
 
         const applyAntiGravityVector = (src: Matter.Body, tgt: Matter.Body) => {
             const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
-                return Repulsion.antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
+                return antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
             };
 
             // wall should not be involved
@@ -202,14 +204,14 @@ namespace knollbot {
                 let forceAntiGravity = f(src, tgt);
                 // antigravity exerts on the center of a block
                 Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
-                Matter.Body.applyForce(src, src.position, Utils.negate(forceAntiGravity));
+                Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
             }
         }
 
 
-        const applyAntiGravityDisjoint = (blocks: Matter.Body[], ufX: UnionFind.UnionFind, ufY: UnionFind.UnionFind) => {
+        const applyAntiGravityDisjoint = (blocks: Matter.Body[], ufX: UnionFind, ufY: UnionFind) => {
             const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
-                return Repulsion.antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
+                return antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
             };
 
             for (let i = 0; i < blocks.length; i++) {
@@ -225,7 +227,7 @@ namespace knollbot {
                             force.y = 0;
                         }
                         Matter.Body.applyForce(tgt, tgt.position, force)
-                        Matter.Body.applyForce(src, src.position, Utils.negate(force));
+                        Matter.Body.applyForce(src, src.position, utils.negate(force));
                     }
                 }
             }
@@ -236,27 +238,26 @@ namespace knollbot {
             if (!block.isStatic) {
                 Matter.Body.applyForce(block, block.position,
                     {
-                        x: world.pokeScale * Utils.randn(),
-                        y: world.pokeScale * Utils.randn(),
+                        x: world.pokeScale * utils.randn(),
+                        y: world.pokeScale * utils.randn(),
                     });
             }
         }
 
-
-        interface EdgeExtended extends Graph.Edge {
-            posSrc: Utils.Vector;
-            posTgt: Utils.Vector;
+        interface EdgeExtended extends Edge {
+            posSrc: utils.Vector;
+            posTgt: utils.Vector;
             idxSrc: number;
             idxTgt: number;
         }
 
 
-        interface GraphExtended extends Graph.Graph {
+        interface GraphExtended extends Graph {
             edges: EdgeExtended[];
         }
 
 
-        type IPointPairFunc = (body1: Matter.Body, body2: Matter.Body) => [Utils.Vector, Utils.Vector, number];
+        type IPointPairFunc = (body1: Matter.Body, body2: Matter.Body) => [utils.Vector, utils.Vector, number];
 
         const createAlignmentGraphMeta = (blocks: Matter.Body[], pointPairFunc: IPointPairFunc): GraphExtended => {
             let edges: EdgeExtended[] = [];
@@ -268,7 +269,7 @@ namespace knollbot {
                     if (dist < world.alignmentForceRange && (!src.isStatic || !tgt.isStatic)) {
                         const e = {
                             weight: dist,
-                            pair: Utils.makeUnorderedPair(i, j),
+                            pair: utils.makeUnorderedPair(i, j),
                             posSrc: posSrc,
                             posTgt: posTgt,
                             idxSrc: i,
@@ -279,17 +280,17 @@ namespace knollbot {
                 }
             }
             let g: GraphExtended = {
-                vertices: Utils.range(blocks.length),
+                vertices: utils.range(blocks.length),
                 edges: edges,
             }
             return g;
         }
 
         const createAlignmentGraphX = (blocks: Matter.Body[]): GraphExtended => {
-            return createAlignmentGraphMeta(blocks, Utils.cloestPointPairX);
+            return createAlignmentGraphMeta(blocks, utils.cloestPointPairX);
         }
         const createAlignmentGraphY = (blocks: Matter.Body[]): GraphExtended => {
-            return createAlignmentGraphMeta(blocks, Utils.cloestPointPairY);
+            return createAlignmentGraphMeta(blocks, utils.cloestPointPairY);
         }
 
         const applyAlignmentForceX = (blocks: Matter.Body[], edge: EdgeExtended) => {
@@ -300,7 +301,7 @@ namespace knollbot {
             const src = blocks[edge.idxSrc];
             const tgt = blocks[edge.idxTgt];
             Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
-            Matter.Body.applyForce(src, src.position, Utils.negate(forceOnTgt));
+            Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
         }
 
         const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
@@ -311,24 +312,24 @@ namespace knollbot {
             const src = blocks[edge.idxSrc];
             const tgt = blocks[edge.idxTgt];
             Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
-            Matter.Body.applyForce(src, src.position, Utils.negate(forceOnTgt));
+            Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
         }
 
 
         const applyGrouping = (src: Matter.Body, tgt: Matter.Body) => {
-            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => Repulsion.antiGravity(s, t, world.groupingCoeff);
+            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => antiGravity(s, t, world.groupingCoeff);
 
             // wall should not be involved
             if (!src.isStatic && !tgt.isStatic) {
                 let forceAntiGravity = f(src, tgt);
 
                 // exert attractive force if blocks are of the same group
-                if (Utils.areSameWidth(src, tgt) || Utils.areSameHeight(src, tgt)) {
-                    forceAntiGravity = Utils.negate(forceAntiGravity);
+                if (utils.areSameWidth(src, tgt) || utils.areSameHeight(src, tgt)) {
+                    forceAntiGravity = utils.negate(forceAntiGravity);
                 }
                 // antigravity exerts on the center of a block
                 Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
-                Matter.Body.applyForce(src, src.position, Utils.negate(forceAntiGravity));
+                Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
             }
         }
 
@@ -356,17 +357,17 @@ namespace knollbot {
                 // after 60 frames
                 let gX = createAlignmentGraphX(blocks);
                 let gY = createAlignmentGraphY(blocks);
-                let edgeMstX = Graph.kruskal(gX) as EdgeExtended[];
-                let edgeMstY = Graph.kruskal(gY) as EdgeExtended[];
+                let edgeMstX = kruskal(gX) as EdgeExtended[];
+                let edgeMstY = kruskal(gY) as EdgeExtended[];
 
                 // alignment force occurs at MST edges only
                 edgeMstX.forEach(e => applyAlignmentForceX(blocks, e));
                 edgeMstY.forEach(e => applyAlignmentForceY(blocks, e));
 
                 // antigravity force occurs at disconnected nodes
-                let ufX = new UnionFind.UnionFind(gX.vertices);
+                let ufX = new UnionFind(gX.vertices);
                 gX.edges.forEach(e => { ufX.connect(e.idxSrc, e.idxTgt) });
-                let ufY = new UnionFind.UnionFind(gY.vertices);
+                let ufY = new UnionFind(gY.vertices);
                 gY.edges.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
                 applyAntiGravityDisjoint(blocks, ufX, ufY);
             }

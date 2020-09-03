@@ -8,7 +8,7 @@
         {
             name: 'Knollbot',
             id: 'knollbot',
-            init: knollbot.main,
+            init: Knollbot.main,
         }
     ];
 

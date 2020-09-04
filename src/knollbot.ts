@@ -81,30 +81,31 @@ export namespace Knollbot {
             friction: params.friction,
         };
 
-        // // generate boxes randomly
-        // const generateRandomBoxes = (): Matter.Body[] => {
-        //     const allSquare = false;
-        //     const MinSizeX = 30;
-        //     const MaxSizeX = 170;
-        //     const MinSizeY = 30;
-        //     const MaxSizeY = 170;
-        //     const UnitSize = 16;
 
-        //     const boxes = Array<Matter.Body>(NumBoxes);
-        //     for (let i = 0; i < NumBoxes; i++) {
-        //         const rectWidth = utils.randRange(MinSizeX, MaxSizeX, UnitSize);
-        //         let rectHeight = rectWidth;
-        //         if (!allSquare) {
-        //             rectHeight = utils.randRange(MinSizeY, MaxSizeY, UnitSize);
-        //         }
-        //         const offsetX = WallOffset + rectWidth / 2;
-        //         const offsetY = WallOffset + rectHeight / 2;
-        //         const x = utils.randRange(offsetX, ScreenWidth - offsetX);
-        //         const y = utils.randRange(offsetY, ScreenHeight - offsetY);
-        //         boxes[i] = Matter.Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
-        //     }
-        //     return boxes;
-        // };
+        // generate boxes randomly
+        const generateRandomBoxes = (): Matter.Body[] => {
+            const allSquare = false;
+            const MinSizeX = 30;
+            const MaxSizeX = 170;
+            const MinSizeY = 30;
+            const MaxSizeY = 170;
+            const UnitSize = 16;
+
+            const boxes = Array<Matter.Body>(NumBoxes);
+            for (let i = 0; i < NumBoxes; i++) {
+                const rectWidth = utils.randRange(MinSizeX, MaxSizeX, UnitSize);
+                let rectHeight = rectWidth;
+                if (!allSquare) {
+                    rectHeight = utils.randRange(MinSizeY, MaxSizeY, UnitSize);
+                }
+                const offsetX = WallOffset + rectWidth / 2;
+                const offsetY = WallOffset + rectHeight / 2;
+                const x = utils.randRange(offsetX, ScreenWidth - offsetX);
+                const y = utils.randRange(offsetY, ScreenHeight - offsetY);
+                boxes[i] = Matter.Bodies.rectangle(x, y, rectWidth, rectHeight, bodyOptions);
+            }
+            return boxes;
+        };
 
 
         const setBox = (imgPath: string, idx: number) => {

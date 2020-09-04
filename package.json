@@ -2,7 +2,7 @@
   "name": "knollbot",
   "version": "1.0.0",
   "description": "let a robot knoll",
-  "main": "index.js",
+  "main": "index.html",
   "dependencies": {
     "matter-js": "^0.14.2"
   },
@@ -10,17 +10,25 @@
     "@types/chai": "^4.2.12",
     "@types/matter-js": "^0.14.5",
     "@types/mocha": "^8.0.3",
-    "awesome-typescript-loader": "^5.2.1",
+    "@types/node": "^14.6.4",
+    "@types/webpack": "^4.41.22",
+    "@types/webpack-dev-server": "^3.11.0",
     "chai": "^4.2.0",
+    "file-loader": "^6.1.0",
     "mocha": "^8.1.3",
     "source-map-loader": "^1.1.0",
+    "ts-loader": "^8.0.3",
+    "ts-node": "^9.0.0",
     "tslint": "^6.1.3",
     "typescript": "^3.9.7",
     "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "webpack",
+    "start:dev": "webpack-dev-server"
   },
   "repository": {
     "type": "git",

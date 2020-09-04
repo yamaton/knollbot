@@ -1,10 +1,14 @@
 {
     "compilerOptions": {
         "outDir": "./built",
-        "target": "ES2015",
+        "target": "ES5",
         // ---------------------------
         // https://webpack.js.org/guides/typescript/
         "sourceMap": true,
+        // https://github.com/Microsoft/TypeScript-React-Starter/issues/12
+        // https://webpack.js.org/configuration/configuration-languages/
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         // --------------------------
         "noImplicitAny": true,
         "strictNullChecks": true,
@@ -16,6 +20,7 @@
         "alwaysStrict": true,
     },
     "include": [
+        "*.d.ts",
         "./src/**/*",
         "./test/**/*",
     ]

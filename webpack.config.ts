@@ -1,11 +1,12 @@
-const path = require('path');
+import * as path from 'path';
+import * as webpack from 'webpack';
 
-module.exports = {
+const config: webpack.Configuration = {
   mode: 'development',  // 'development' or 'production'
   entry: './src/index.ts',
   output: {
-    filename: 'main.js',
     path: path.resolve(__dirname, 'built'),
+    filename: 'main.js',
   },
   devtool: 'inline-source-map',
   module: {
@@ -25,3 +26,5 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
 };
+
+export default config;

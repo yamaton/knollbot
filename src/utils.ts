@@ -119,7 +119,7 @@ export const cloestPointPairY = (body1: Matter.Body, body2: Matter.Body): [Vecto
 
 export const range = (size: number): number[] => {
   size = Math.floor(size);
-  return [...Array(size).keys()]
+  return Array.from(Array(size).keys());
 };
 
 export const randRange = (lo: number, hi: number, unit: number = 1): number => {

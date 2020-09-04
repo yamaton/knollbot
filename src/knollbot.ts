@@ -108,31 +108,40 @@ export namespace Knollbot {
         };
 
 
-        const setBox = (imgPath: string, idx: number) => {
-            let img = new Image();
-            img.addEventListener('load', () => {
-                let offsetX = WallOffset + img.width / 2;
-                let offsetY = WallOffset + img.height / 2;
-                let x = utils.randRange(offsetX, ScreenWidth - offsetX);
-                let y = utils.randRange(offsetY, ScreenHeight - offsetY);
-                let options = {
-                    ...bodyOptions,
-                    render: {
-                        sprite: {
-                            texture: imgPath,
-                        }
-                    }
-                }
-                boxes[idx] = Matter.Bodies.rectangle(x, y, img.width, img.height, options);
-            });
-            img.src = imgPath;
-        }
 
-        const boxes = Array<Matter.Body>(NumBoxes);
-        imgPaths.forEach((imgPath, i) => {
-            setBox(imgPath, i);
-        })
+        // https://stackoverflow.com/a/55934241/524526
+        const getImageDimensions = (path: string) => new Promise((resolve, reject) => {
+            const img = new Image();
 
+            // the following handler will fire after the successful loading of the image
+            img.onload = () => {
+                const { naturalWidth: width, naturalHeight: height } = img;
+                resolve({ width, height });
+            };
+
+            // and this handler will fire if there was an error with the image (like if it's not really an image or a corrupted one)
+            img.onerror = () => {
+                reject('There was some problem with the image.');
+            };
+
+            img.src = path;
+        });
+
+
+        const getBox = async (imgPath: string) => {
+            let img = await getImageDimensions(imgPath) as { width: number, height: number };
+            let offsetX = WallOffset + img.width / 2;
+            let offsetY = WallOffset + img.height / 2;
+            let x = utils.randRange(offsetX, ScreenWidth - offsetX);
+            let y = utils.randRange(offsetY, ScreenHeight - offsetY);
+            let options = {
+                ...bodyOptions,
+                render: { sprite: { texture: imgPath } },
+            };
+            return Matter.Bodies.rectangle(x, y, img.width, img.height, options);
+        };
+
+        const promisedBoxes = Promise.all(imgPaths.map(getBox));
 
         // surrounding wall
         const wallOptions = {
@@ -379,15 +388,14 @@ export namespace Knollbot {
             blocks.forEach(applyRandomPoke);
         });
 
-        const setupWorld = () => {
-            setTimeout(() => {
-                blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
-                Matter.World.add(world, blocks);
-                Matter.World.add(world, mouseConstraint);
-                Matter.Runner.run(runner, engine);
-                Matter.Render.run(render);
-            }, 500);
-        }
+        const setupWorld = async () => {
+            let boxes = await promisedBoxes;
+            blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
+            Matter.World.add(world, blocks);
+            Matter.World.add(world, mouseConstraint);
+            Matter.Runner.run(runner, engine);
+            Matter.Render.run(render);
+        };
 
         setupWorld();
 

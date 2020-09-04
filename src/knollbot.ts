@@ -6,9 +6,9 @@ import * as utils from "./utils";
 import { imgPaths, params } from "./config";
 
 
-namespace knollbot {
+export namespace Knollbot {
 
-    export const main = () => {
+    export const run = () => {
 
         interface WorldExtended extends Matter.World {
             pokeScale: number;

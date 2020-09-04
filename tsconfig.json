@@ -3,6 +3,9 @@
         "outDir": "./built",
         "target": "ES2015",
         // ---------------------------
+        // https://webpack.js.org/guides/typescript/
+        "sourceMap": true,
+        // --------------------------
         "noImplicitAny": true,
         "strictNullChecks": true,
         "strictFunctionTypes": true,

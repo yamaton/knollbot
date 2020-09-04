@@ -21,9 +21,9 @@ npm install
 patch node_modules/@types/matter-js/index.d.ts < index.d.ts.patch
 
 # Assume typescript is already installed
-tsc --build --verbose
+npm run build
 
-# View HTML file
-firefox view.html
+# Open browser
+firefox index.html
 ```
 

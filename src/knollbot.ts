@@ -1,4 +1,4 @@
-import * as Matter from "matter-js";
+import Matter from "matter-js";
 import UnionFind from "./unionfind";
 import { Edge, Graph, kruskal } from "./graph";
 import { antiGravity, antiGravityRanged } from "./repulsion";

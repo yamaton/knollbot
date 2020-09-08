@@ -68,7 +68,7 @@ const applyAlignmentForceY = (world: WorldExtended, blocks: Matter.Body[], edge:
 }
 
 
-export const applyAlignment = (world: WorldExtended, blocks: Matter.Body[]) => {
+const applyAlignmentMST = (world: WorldExtended, blocks: Matter.Body[]) => {
   let gX = createAlignmentGraphX(world, blocks);
   let gY = createAlignmentGraphY(world, blocks);
   let edgeMstX = kruskal(gX) as EdgeExtended[];
@@ -84,4 +84,54 @@ export const applyAlignment = (world: WorldExtended, blocks: Matter.Body[]) => {
   let ufY = new UnionFind(gY.vertices);
   gY.edges.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
   grouping.applyAntiGravityDisjoint(world, blocks, ufX, ufY);
+}
+
+
+const createBoxWallBipartiteMeta = (world: WorldExtended, blocks: Matter.Body[], pointPairFunc: IPointPairFunc): GraphExtended => {
+  let edges: EdgeExtended[] = [];
+  const boxes = blocks.slice(0, blocks.length - 4);
+  const walls = blocks.slice(blocks.length - 4, blocks.length);
+
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = 0; j < 4; j++) {
+      const src = boxes[i];
+      const tgt = walls[j];
+      const idxBox = i;
+      const idxWall = j + boxes.length;
+      const [posBox, posWall, dist] = pointPairFunc(src, tgt);
+      if (dist < world.alignmentForceWallRange) {
+        const e: EdgeExtended = {
+          weight: dist,
+          pair: { first: idxBox, second: idxWall },
+          posSrc: posBox,
+          posTgt: posWall,
+          idxSrc: i,
+          idxTgt: j,
+        }
+        edges.push(e);
+      }
+    }
+  }
+  let g: GraphExtended = {
+    vertices: utils.range(blocks.length),
+    edges: edges,
+  }
+  return g;
+}
+
+const applyBoxWallAlignment = (world: WorldExtended, blocks: Matter.Body[]) => {
+  let gX = createBoxWallBipartiteMeta(world, blocks, utils.cloestPointPairX);
+  let gY = createBoxWallBipartiteMeta(world, blocks, utils.cloestPointPairY);
+
+  // alignment force occurs at MST edges only
+  gX.edges.forEach(e => applyAlignmentForceX(world, blocks, e));
+  gY.edges.forEach(e => applyAlignmentForceY(world, blocks, e));
+}
+
+
+export const applyAlignment = (world: WorldExtended, blocks: Matter.Body[]) => {
+  applyBoxWallAlignment(world, blocks);
+
+  const boxes = blocks.slice(0, blocks.length - 4);
+  applyAlignmentMST(world, boxes);
 }

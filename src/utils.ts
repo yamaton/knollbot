@@ -90,7 +90,7 @@ export const distEuclid = (pointA: Vector, pointB: Vector): number => {
   return Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
 }
 
-export const cloestPointMeta = (body1: Matter.Body, body2: Matter.Body, edgeA: (vs: Vector[]) => Vector, edgeB: (vs: Vector[]) => Vector, distFunc: (v1: Vector, v2: Vector) => number): [Vector, Vector, number] => {
+const cloestPointMeta = (body1: Matter.Body, body2: Matter.Body, edgeA: (vs: Vector[]) => Vector, edgeB: (vs: Vector[]) => Vector, distFunc: (v1: Vector, v2: Vector) => number): [Vector, Vector, number] => {
   let one1 = edgeA(body1.vertices);
   let another1 = edgeB(body1.vertices);
   let one2 = edgeA(body2.vertices);

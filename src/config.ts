@@ -51,6 +51,7 @@ export const params = {
     // Alignment force
     alignmentForceCoeff: 0.0010,
     alignmentForceRange: 30,  // pixels
+    alignmentForceWallRange: 15, // pixels
 
     // AntiGravity force
     repulsionCoeff: 100,

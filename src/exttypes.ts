@@ -7,6 +7,7 @@ export interface WorldExtended extends Matter.World {
   pokeScale: number;
   alignmentForceCoeff: number;
   alignmentForceRange: number;
+  alignmentForceWallRange: number;
   repulsionCoeff: number;
   repulsionRange: number;
   groupingCoeff: number;
@@ -20,7 +21,6 @@ export interface EdgeExtended extends Edge {
   idxSrc: number;
   idxTgt: number;
 }
-
 
 export interface GraphExtended extends Graph {
   edges: EdgeExtended[];

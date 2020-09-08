@@ -39,29 +39,6 @@ export const vectorMean = (vec: Vector[]): Vector => {
   return { x: x, y: y };
 }
 
-export const closestPointDirMeta = (xs: Vector[], ref: number, f: (a: Vector) => number): Vector => {
-  let minDist = Infinity;
-  let res: Vector[] = [];
-  for (let p of xs) {
-    let d = Math.abs(f(p) - ref)
-    if (d == minDist) {
-      res.push(p);
-    } else if (d < minDist) {
-      minDist = d;
-      res = [p];
-    }
-  }
-  return vectorMean(res);
-}
-
-export const closestPointDirX = (xs: Vector[], ref: number): Vector => {
-  return closestPointDirMeta(xs, ref, p => p.x);
-}
-
-export const closestPointDirY = (xs: Vector[], ref: number): Vector => {
-  return closestPointDirMeta(xs, ref, p => p.y);
-}
-
 export const rightmostPoint = (points: Vector[]): Vector => {
   return vectorMean(arrMaxBy({ xs: points, f: p => p.x }));
 }
@@ -159,9 +136,6 @@ export const normalize = (v: Vector): Vector => {
 export const negate = (v: Vector): Vector => {
   return { x: -v.x, y: -v.y };
 }
-
-
-
 
 export const makeUnorderedPair = <T>(a: T, b: T): Pair<T> => {
   if (b < a) {

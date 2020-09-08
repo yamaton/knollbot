@@ -5,21 +5,6 @@ import { WorldExtended } from "./exttypes";
 import UnionFind from "./unionfind";
 
 
-export const applyAntiGravityVector = (world: WorldExtended, src: Matter.Body, tgt: Matter.Body) => {
-  const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
-    return antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
-  };
-
-  // wall should not be involved
-  if (!src.isStatic && !tgt.isStatic) {
-    let forceAntiGravity = f(src, tgt);
-    // antigravity exerts on the center of a block
-    Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
-    Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
-  }
-}
-
-
 export const applyAntiGravityDisjoint = (world: WorldExtended, blocks: Matter.Body[], ufX: UnionFind, ufY: UnionFind) => {
   const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
     return antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
@@ -45,7 +30,7 @@ export const applyAntiGravityDisjoint = (world: WorldExtended, blocks: Matter.Bo
 }
 
 
-export const applyGrouping = (world: WorldExtended, src: Matter.Body, tgt: Matter.Body) => {
+const applyGroupingTwoBody = (world: WorldExtended, src: Matter.Body, tgt: Matter.Body) => {
   const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => antiGravity(s, t, world.groupingCoeff);
 
   // wall should not be involved
@@ -59,5 +44,14 @@ export const applyGrouping = (world: WorldExtended, src: Matter.Body, tgt: Matte
     // antigravity exerts on the center of a block
     Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
     Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
+  }
+}
+
+
+export const applyGrouping = (world: WorldExtended, blocks: Matter.Body[]) => {
+  for (let i = 0; i < blocks.length; i++) {
+    for (let j = i + 1; j < blocks.length; j++) {
+      applyGroupingTwoBody(world, blocks[i], blocks[j]);
+    }
   }
 }

@@ -1,12 +1,12 @@
 import Matter from "matter-js";
-import UnionFind from "./unionfind";
-import { kruskal } from "./graph";
-import { WorldExtended, EdgeExtended } from "./exttypes";
+
+import { WorldExtended } from "./exttypes";
+import { imgPaths, params } from "./config";
 import * as utils from "./utils";
+import * as repulsion from "./repulsion";
 import * as align from "./alignment";
 import * as grouping from "./grouping";
-import { imgPaths, params } from "./config";
-import { applyRandomPoke } from "./randompokes";
+import * as poke from "./randompokes";
 
 
 export namespace Knollbot {
@@ -195,50 +195,6 @@ export namespace Knollbot {
         // `blocks` is to contain boxes, walls, and mouse constraints
         var blocks: Matter.Body[];
 
-        var counter = 0;
-        Matter.Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
-            counter += 1;
-            if (counter % 300 == 0) {
-                console.log("counter: ", counter);
-            }
-
-            if (counter < 180) {
-                for (let i = 0; i < blocks.length; i++) {
-                    for (let j = i + 1; j < blocks.length; j++) {
-                        grouping.applyGrouping(world, blocks[i], blocks[j]);
-                    }
-                }
-            } else if (counter < 240) {
-                for (let i = 0; i < blocks.length; i++) {
-                    for (let j = i + 1; j < blocks.length; j++) {
-                        grouping.applyAntiGravityVector(world, blocks[i], blocks[j]);
-                    }
-                }
-            } else {
-                // after 60 frames
-                let gX = align.createAlignmentGraphX(world, blocks);
-                let gY = align.createAlignmentGraphY(world, blocks);
-                let edgeMstX = kruskal(gX) as EdgeExtended[];
-                let edgeMstY = kruskal(gY) as EdgeExtended[];
-
-                // alignment force occurs at MST edges only
-                edgeMstX.forEach(e => align.applyAlignmentForceX(world, blocks, e));
-                edgeMstY.forEach(e => align.applyAlignmentForceY(world, blocks, e));
-
-                // antigravity force occurs at disconnected nodes
-                let ufX = new UnionFind(gX.vertices);
-                gX.edges.forEach(e => { ufX.connect(e.idxSrc, e.idxTgt) });
-                let ufY = new UnionFind(gY.vertices);
-                gY.edges.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
-                grouping.applyAntiGravityDisjoint(world, blocks, ufX, ufY);
-            }
-
-            if (counter % 10 == 9) {
-                world.pokeScale *= params.pokeScaleDecay;
-            }
-            blocks.forEach(block => applyRandomPoke(world, block));
-        });
-
         const setupWorld = async () => {
             let boxes = await promisedBoxes;
             blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
@@ -249,6 +205,30 @@ export namespace Knollbot {
         };
 
         setupWorld();
+
+
+        // main loop
+        var counter = 0;
+        Matter.Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
+            counter += 1;
+            if (counter % 300 == 0) {
+                console.log("counter: ", counter);
+            }
+
+            if (counter < 180) {
+                grouping.applyGrouping(world, blocks);
+            } else if (counter < 240) {
+                repulsion.applyAntiGravity(world, blocks);
+            } else {
+                align.applyAlignment(world, blocks);
+            }
+
+            if (counter % 10 == 9) {
+                world.pokeScale *= params.pokeScaleDecay;
+            }
+            poke.applyRandomPokes(world, blocks);
+        });
+
 
         // Rotate a block by double clicking
         document.addEventListener('dblclick', () => {

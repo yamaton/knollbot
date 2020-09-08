@@ -1,23 +1,17 @@
 import Matter from "matter-js";
 import UnionFind from "./unionfind";
-import { Edge, Graph, kruskal } from "./graph";
-import { antiGravity, antiGravityRanged } from "./repulsion";
+import { kruskal } from "./graph";
+import { WorldExtended, EdgeExtended } from "./exttypes";
 import * as utils from "./utils";
+import * as align from "./alignment";
+import * as grouping from "./grouping";
 import { imgPaths, params } from "./config";
+import { applyRandomPoke } from "./randompokes";
 
 
 export namespace Knollbot {
 
     export const run = () => {
-
-        interface WorldExtended extends Matter.World {
-            pokeScale: number;
-            alignmentForceCoeff: number;
-            alignmentForceRange: number;
-            repulsionCoeff: number;
-            repulsionRange: number;
-            groupingCoeff: number;
-        }
 
         // create an engine and runner
         const engine = Matter.Engine.create();
@@ -108,7 +102,6 @@ export namespace Knollbot {
         };
 
 
-
         // https://stackoverflow.com/a/55934241/524526
         const getImageDimensions = (path: string) => new Promise((resolve, reject) => {
             const img = new Image();
@@ -178,7 +171,6 @@ export namespace Knollbot {
             wallOptions,
         );
 
-
         // mouse and constraint
         const mouse = Matter.Mouse.create(render.canvas);
         const constraint = Matter.Constraint.create(
@@ -203,147 +195,6 @@ export namespace Knollbot {
         // `blocks` is to contain boxes, walls, and mouse constraints
         var blocks: Matter.Body[];
 
-
-        const applyAntiGravityVector = (src: Matter.Body, tgt: Matter.Body) => {
-            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
-                return antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
-            };
-
-            // wall should not be involved
-            if (!src.isStatic && !tgt.isStatic) {
-                let forceAntiGravity = f(src, tgt);
-                // antigravity exerts on the center of a block
-                Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
-                Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
-            }
-        }
-
-
-        const applyAntiGravityDisjoint = (blocks: Matter.Body[], ufX: UnionFind, ufY: UnionFind) => {
-            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => {
-                return antiGravityRanged(s, t, world.repulsionCoeff, world.repulsionRange);
-            };
-
-            for (let i = 0; i < blocks.length; i++) {
-                for (let j = i + 1; j < blocks.length; j++) {
-                    let src = blocks[i];
-                    let tgt = blocks[j];
-                    if (!src.isStatic && !tgt.isStatic) {
-                        let force = f(src, tgt);
-                        if (ufX.areConnected(i, j)) {
-                            force.x = 0;
-                        }
-                        if (ufY.areConnected(i, j)) {
-                            force.y = 0;
-                        }
-                        Matter.Body.applyForce(tgt, tgt.position, force)
-                        Matter.Body.applyForce(src, src.position, utils.negate(force));
-                    }
-                }
-            }
-        }
-
-
-        const applyRandomPoke = (block: Matter.Body) => {
-            if (!block.isStatic) {
-                Matter.Body.applyForce(block, block.position,
-                    {
-                        x: world.pokeScale * utils.randn(),
-                        y: world.pokeScale * utils.randn(),
-                    });
-            }
-        }
-
-        interface EdgeExtended extends Edge {
-            posSrc: utils.Vector;
-            posTgt: utils.Vector;
-            idxSrc: number;
-            idxTgt: number;
-        }
-
-
-        interface GraphExtended extends Graph {
-            edges: EdgeExtended[];
-        }
-
-
-        type IPointPairFunc = (body1: Matter.Body, body2: Matter.Body) => [utils.Vector, utils.Vector, number];
-
-        const createAlignmentGraphMeta = (blocks: Matter.Body[], pointPairFunc: IPointPairFunc): GraphExtended => {
-            let edges: EdgeExtended[] = [];
-            for (let i = 0; i < blocks.length; i++) {
-                for (let j = i + 1; j < blocks.length; j++) {
-                    const src = blocks[i];
-                    const tgt = blocks[j];
-                    const [posSrc, posTgt, dist] = pointPairFunc(src, tgt);
-                    if (dist < world.alignmentForceRange && (!src.isStatic || !tgt.isStatic)) {
-                        const e = {
-                            weight: dist,
-                            pair: utils.makeUnorderedPair(i, j),
-                            posSrc: posSrc,
-                            posTgt: posTgt,
-                            idxSrc: i,
-                            idxTgt: j,
-                        }
-                        edges.push(e);
-                    }
-                }
-            }
-            let g: GraphExtended = {
-                vertices: utils.range(blocks.length),
-                edges: edges,
-            }
-            return g;
-        }
-
-        const createAlignmentGraphX = (blocks: Matter.Body[]): GraphExtended => {
-            return createAlignmentGraphMeta(blocks, utils.cloestPointPairX);
-        }
-        const createAlignmentGraphY = (blocks: Matter.Body[]): GraphExtended => {
-            return createAlignmentGraphMeta(blocks, utils.cloestPointPairY);
-        }
-
-        const applyAlignmentForceX = (blocks: Matter.Body[], edge: EdgeExtended) => {
-            const sign = (edge.posSrc.x < edge.posTgt.x) ? -1 : 1;
-            const dist = edge.weight;
-            const force = world.alignmentForceCoeff * sign * dist;
-            const forceOnTgt = { x: force, y: 0 };
-            const src = blocks[edge.idxSrc];
-            const tgt = blocks[edge.idxTgt];
-            Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
-            Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
-        }
-
-        const applyAlignmentForceY = (blocks: Matter.Body[], edge: EdgeExtended) => {
-            const sign = (edge.posSrc.y < edge.posTgt.y) ? -1 : 1;
-            const dist = edge.weight;
-            const force = world.alignmentForceCoeff * sign * dist;
-            const forceOnTgt = { x: 0, y: force };
-            const src = blocks[edge.idxSrc];
-            const tgt = blocks[edge.idxTgt];
-            Matter.Body.applyForce(tgt, tgt.position, forceOnTgt);
-            Matter.Body.applyForce(src, src.position, utils.negate(forceOnTgt));
-        }
-
-
-        const applyGrouping = (src: Matter.Body, tgt: Matter.Body) => {
-            const f = (s: Matter.Body, t: Matter.Body): Matter.Vector => antiGravity(s, t, world.groupingCoeff);
-
-            // wall should not be involved
-            if (!src.isStatic && !tgt.isStatic) {
-                let forceAntiGravity = f(src, tgt);
-
-                // exert attractive force if blocks are of the same group
-                if (utils.areSameWidth(src, tgt) || utils.areSameHeight(src, tgt)) {
-                    forceAntiGravity = utils.negate(forceAntiGravity);
-                }
-                // antigravity exerts on the center of a block
-                Matter.Body.applyForce(tgt, tgt.position, forceAntiGravity);
-                Matter.Body.applyForce(src, src.position, utils.negate(forceAntiGravity));
-            }
-        }
-
-
         var counter = 0;
         Matter.Events.on(engine, 'beforeUpdate', (event: Matter.Events) => {
             counter += 1;
@@ -354,38 +205,38 @@ export namespace Knollbot {
             if (counter < 180) {
                 for (let i = 0; i < blocks.length; i++) {
                     for (let j = i + 1; j < blocks.length; j++) {
-                        applyGrouping(blocks[i], blocks[j]);
+                        grouping.applyGrouping(world, blocks[i], blocks[j]);
                     }
                 }
             } else if (counter < 240) {
                 for (let i = 0; i < blocks.length; i++) {
                     for (let j = i + 1; j < blocks.length; j++) {
-                        applyAntiGravityVector(blocks[i], blocks[j]);
+                        grouping.applyAntiGravityVector(world, blocks[i], blocks[j]);
                     }
                 }
             } else {
                 // after 60 frames
-                let gX = createAlignmentGraphX(blocks);
-                let gY = createAlignmentGraphY(blocks);
+                let gX = align.createAlignmentGraphX(world, blocks);
+                let gY = align.createAlignmentGraphY(world, blocks);
                 let edgeMstX = kruskal(gX) as EdgeExtended[];
                 let edgeMstY = kruskal(gY) as EdgeExtended[];
 
                 // alignment force occurs at MST edges only
-                edgeMstX.forEach(e => applyAlignmentForceX(blocks, e));
-                edgeMstY.forEach(e => applyAlignmentForceY(blocks, e));
+                edgeMstX.forEach(e => align.applyAlignmentForceX(world, blocks, e));
+                edgeMstY.forEach(e => align.applyAlignmentForceY(world, blocks, e));
 
                 // antigravity force occurs at disconnected nodes
                 let ufX = new UnionFind(gX.vertices);
                 gX.edges.forEach(e => { ufX.connect(e.idxSrc, e.idxTgt) });
                 let ufY = new UnionFind(gY.vertices);
                 gY.edges.forEach(e => { ufY.connect(e.idxSrc, e.idxTgt) });
-                applyAntiGravityDisjoint(blocks, ufX, ufY);
+                grouping.applyAntiGravityDisjoint(world, blocks, ufX, ufY);
             }
 
             if (counter % 10 == 9) {
                 world.pokeScale *= params.pokeScaleDecay;
             }
-            blocks.forEach(applyRandomPoke);
+            blocks.forEach(block => applyRandomPoke(world, block));
         });
 
         const setupWorld = async () => {

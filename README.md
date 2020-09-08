@@ -5,7 +5,7 @@ Currently providing UI to play knolling. Work in progress.
 
 ## Knolling demo
 
-https://yamaton.github.io/knolling.html
+https://yamaton.github.io/index.html
 
 
 

@@ -1,3 +1,4 @@
+import chai from "chai";
 import UnionFind from "../src/unionfind";
 import * as utils from "../src/utils";
 

@@ -26,7 +26,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "mocha -r ts-node/register test/*.ts",
     "build": "webpack",
     "start:dev": "webpack-dev-server"
   },

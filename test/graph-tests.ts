@@ -1,3 +1,4 @@
+import chai from "chai";
 import { kruskal } from "../src/graph";
 import { makeUnorderedPair } from "../src/utils";
 

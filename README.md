@@ -19,8 +19,8 @@ cd knollbot
 # install node packages
 npm install
 
-# patch @types/matter-js
-patch node_modules/@types/matter-js/index.d.ts < index.d.ts.patch
+# apply a patch to @types/matter-js 0.14.5
+./apply_patch.sh
 
 # Assume typescript is already installed
 npm run build

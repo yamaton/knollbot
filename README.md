@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/yamaton/knollbot/workflows/Node.js%20CI/badge.svg)
+
 # knollbot
 
 Currently providing UI to play knolling. Work in progress.

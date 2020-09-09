@@ -25,5 +25,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
+    - run: bash ./apply_patch.sh
     - run: npm run build --if-present
     - run: npm test

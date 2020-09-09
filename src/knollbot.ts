@@ -18,6 +18,9 @@ export namespace Knollbot {
         const world = engine.world as WorldExtended;
         const runner = Matter.Runner.create();
 
+        // enable force by default
+        world.forceOn = true;
+
         // disable gravity
         world.gravity.y = 0.0;
 
@@ -217,18 +220,29 @@ export namespace Knollbot {
                 console.log("counter: ", counter);
             }
 
-            if (counter < 180) {
-                grouping.applyGrouping(world, blocks);
-            } else if (counter < 240) {
-                repulsion.applyAntiGravity(world, blocks);
-            } else {
-                align.applyAlignment(world, blocks);
-            }
+            if (world.forceOn) {
+                if (counter < 180) {
+                    grouping.applyGrouping(world, blocks);
+                } else if (counter < 240) {
+                    repulsion.applyAntiGravity(world, blocks);
+                } else {
+                    align.applyAlignment(world, blocks);
+                }
 
-            if (counter % 10 == 9) {
-                world.pokeScale *= world.pokeDecay;
+                if (counter % 10 == 9) {
+                    world.pokeScale *= world.pokeDecay;
+                }
+                poke.applyRandomPokes(world, blocks);
             }
-            poke.applyRandomPokes(world, blocks);
+        });
+
+
+        // Toggle forces by pressing Space key
+        document.addEventListener('keydown', (e) => {
+            if (e.code === "Space") {
+                world.forceOn = !world.forceOn;
+                console.log(`Toggled force: forceOn is ${world.forceOn} now`);
+            }
         });
 
 

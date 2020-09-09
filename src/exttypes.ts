@@ -4,6 +4,7 @@ import { Edge, Graph } from "./graph";
 
 
 export interface WorldExtended extends Matter.World {
+  forceOn: boolean;
   pokeScale: number;
   pokeDecay: number;
   alignmentForceCoeff: number;

@@ -46,7 +46,7 @@ export const params = {
 
     // Global random poking
     pokeScale: 0.05,
-    pokeScaleDecay: 0.95,  // multiplier after 10 counts
+    pokeDecay: 0.95,  // multiplier after 10 counts
 
     // Alignment force
     alignmentForceCoeff: 0.0010,

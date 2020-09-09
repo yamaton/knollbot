@@ -41,6 +41,7 @@ export namespace Knollbot {
         // --------------------------------------
         // Random poking
         world.pokeScale = params.pokeScale;
+        world.pokeDecay = params.pokeDecay;
 
         // Alignment force
         world.alignmentForceCoeff = params.alignmentForceCoeff;
@@ -225,7 +226,7 @@ export namespace Knollbot {
             }
 
             if (counter % 10 == 9) {
-                world.pokeScale *= params.pokeScaleDecay;
+                world.pokeScale *= world.pokeDecay;
             }
             poke.applyRandomPokes(world, blocks);
         });

@@ -67,15 +67,15 @@ export const distEuclid = (pointA: Vector, pointB: Vector): number => {
   return Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
 }
 
-const cloestPointMeta = (body1: Matter.Body, body2: Matter.Body, edgeA: (vs: Vector[]) => Vector, edgeB: (vs: Vector[]) => Vector, distFunc: (v1: Vector, v2: Vector) => number): [Vector, Vector, number] => {
-  let one1 = edgeA(body1.vertices);
-  let another1 = edgeB(body1.vertices);
-  let one2 = edgeA(body2.vertices);
-  let another2 = edgeB(body2.vertices);
-  let res: [Vector, Vector, number] = [one1, another1, Infinity];
+const cloestPointMeta = (this_: Matter.Body, that: Matter.Body, edgeA: (vs: Vector[]) => Vector, edgeB: (vs: Vector[]) => Vector, distFunc: (v1: Vector, v2: Vector) => number): [Vector, Vector, number] => {
+  let thisA = edgeA(this_.vertices);
+  let thisB = edgeB(this_.vertices);
+  let thatA = edgeA(that.vertices);
+  let thatB = edgeB(that.vertices);
+  let res: [Vector, Vector, number] = [thisA, thatA, Infinity];
   let dist = Infinity;
-  for (let p1 of [one1, another1]) {
-    for (let p2 of [one2, another2]) {
+  for (let p1 of [thisA, thisB]) {
+    for (let p2 of [thatA, thatB]) {
       let d = distFunc(p1, p2);
       if (d < dist) {
         dist = d;

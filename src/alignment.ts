@@ -89,24 +89,23 @@ const applyAlignmentMST = (world: WorldExtended, blocks: Matter.Body[]) => {
 
 const createBoxWallBipartiteMeta = (world: WorldExtended, blocks: Matter.Body[], pointPairFunc: IPointPairFunc): GraphExtended => {
   let edges: EdgeExtended[] = [];
-  const boxes = blocks.slice(0, blocks.length - 4);
-  const walls = blocks.slice(blocks.length - 4, blocks.length);
+  const numBox = blocks.length - 4;
 
-  for (let i = 0; i < boxes.length; i++) {
+  for (let i = 0; i < numBox; i++) {
     for (let j = 0; j < 4; j++) {
-      const src = boxes[i];
-      const tgt = walls[j];
       const idxBox = i;
-      const idxWall = j + boxes.length;
-      const [posBox, posWall, dist] = pointPairFunc(src, tgt);
+      const idxWall = j + numBox;
+      const block = blocks[idxBox];
+      const wall = blocks[idxWall];
+      const [posBox, posWall, dist] = pointPairFunc(block, wall);
       if (dist < world.alignmentForceWallRange) {
         const e: EdgeExtended = {
           weight: dist,
           pair: { first: idxBox, second: idxWall },
           posSrc: posBox,
           posTgt: posWall,
-          idxSrc: i,
-          idxTgt: j,
+          idxSrc: idxBox,
+          idxTgt: idxWall,
         }
         edges.push(e);
       }

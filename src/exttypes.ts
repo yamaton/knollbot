@@ -10,6 +10,7 @@ export interface WorldExtended extends Matter.World {
   alignmentForceCoeff: number;
   alignmentForceRange: number;
   alignmentForceWallRange: number;
+  alignmentForceOffset: number;
   repulsionCoeff: number;
   repulsionRange: number;
   groupingCoeff: number;

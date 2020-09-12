@@ -47,7 +47,7 @@ const createAlignmentGraphY = (world: WorldExtended, blocks: Matter.Body[]): Gra
 const applyAlignmentForceX = (world: WorldExtended, blocks: Matter.Body[], edge: EdgeExtended) => {
   const sign = (edge.posSrc.x < edge.posTgt.x) ? -1 : 1;
   const dist = edge.weight;
-  const force = world.alignmentForceCoeff * sign * dist;
+  const force = sign * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
   const forceOnTgt = { x: force, y: 0 };
   const src = blocks[edge.idxSrc];
   const tgt = blocks[edge.idxTgt];
@@ -59,7 +59,7 @@ const applyAlignmentForceX = (world: WorldExtended, blocks: Matter.Body[], edge:
 const applyAlignmentForceY = (world: WorldExtended, blocks: Matter.Body[], edge: EdgeExtended) => {
   const sign = (edge.posSrc.y < edge.posTgt.y) ? -1 : 1;
   const dist = edge.weight;
-  const force = world.alignmentForceCoeff * sign * dist;
+  const force = sign * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
   const forceOnTgt = { x: 0, y: force };
   const src = blocks[edge.idxSrc];
   const tgt = blocks[edge.idxTgt];

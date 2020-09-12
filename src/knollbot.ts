@@ -50,6 +50,7 @@ export namespace Knollbot {
         world.alignmentForceCoeff = params.alignmentForceCoeff;
         world.alignmentForceRange = params.alignmentForceRange;  // pixels
         world.alignmentForceWallRange = params.alignmentForceWallRange;
+        world.alignmentForceOffset = params.alignmentForceOffset;
 
         // AntiGravity force
         world.repulsionCoeff = params.repulsionCoeff;

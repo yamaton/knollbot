@@ -156,11 +156,11 @@ export const getHeight = (block: Matter.Body): number => {
   return arrMax(ys) - arrMin(ys);
 }
 
-export const areSameHeight = (foo: Matter.Body, bar: Matter.Body) => {
+export const areSameHeight = (foo: Matter.Body, bar: Matter.Body): boolean => {
   return getHeight(foo) == getHeight(bar);
 }
 
-export const areSameWidth = (foo: Matter.Body, bar: Matter.Body) => {
+export const areSameWidth = (foo: Matter.Body, bar: Matter.Body): boolean => {
   return getWidth(foo) == getWidth(bar);
 }
 

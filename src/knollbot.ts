@@ -1,4 +1,5 @@
 import Matter from "matter-js";
+import p5 from "p5";
 
 import { WorldExtended } from "./exttypes";
 import { imgPaths, params } from "./config";
@@ -192,18 +193,37 @@ export namespace Knollbot {
             Matter.Runner.run(runner, engine);
         };
 
-        setupWorld();
 
-        // p5 setup
+        // p5 preload that waits till done
+        var p5imgs: p5.Image[];
+        p.preload = () => {
+            setupWorld();
+            p5imgs = imgPaths.map(p.loadImage);
+        };
+
+        // p5 setup that runs in async
         p.setup = () => {
             p.createCanvas(ScreenWidth, ScreenHeight);
         };
 
         // p5 draw
         p.draw = () => {
-            p.background(0);
-            p.fill('#247c41');
-            for (let block of blocks) {
+            p.background('#247c41');
+            p.fill(0);
+            // draw blocks
+            for (let i in p5imgs) {
+                // p.push();
+                const block = blocks[i];
+                const img = p5imgs[i];
+                const w = utils.getWidth(block);
+                const h = utils.getHeight(block);
+                const x = Math.floor(block.position.x - w / 2);
+                const y = Math.floor(block.position.y - h / 2);
+                p.image(img, x, y);
+            }
+            // draw walls
+            for (let i = 0; i < 4; i++) {
+                const block = blocks[p5imgs.length + i];
                 const w = utils.getWidth(block);
                 const h = utils.getHeight(block);
                 const x = Math.floor(block.position.x - w / 2);
@@ -249,21 +269,33 @@ export namespace Knollbot {
         // Rotate a block by double clicking
         document.addEventListener('dblclick', () => {
             console.log(`--- Double click at t=${counter} ---`);
-            blocks
-                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-                .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
+            // iterate over blocks except for walls
+            for (let i = 0; i < blocks.length - 4; i++) {
+                const b = blocks[i];
+                if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position)) {
+                    Matter.Body.rotate(b, Math.PI / 2);
+                    p5imgs[i] = utils.rotateClockwise(p, p5imgs[i]);
+                    break;
+                }
+            }
         });
 
 
-        // // Rotate a block by touch rotation
+        // Rotate a block by touch rotation
         document.addEventListener('touchmove', (e) => {
             let touch = e.changedTouches.item(0);
-            let angleInRadian = Math.PI / 180 * (touch?.rotationAngle ?? 0);
+            let angleInDegrees = touch?.rotationAngle ?? 0;
             console.log(`--- Touch rotation activated at t=${counter} ---`);
-            console.log(`    rotation angle = ${touch?.rotationAngle} (deg)`);
-            blocks
-                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-                .forEach(b => Matter.Body.rotate(b, angleInRadian));
+            console.log(`    rotation angle = ${angleInDegrees} (deg)`);
+            // iterate over blocks except for walls
+            for (let i = 0; i < blocks.length - 4; i++) {
+                const b = blocks[i];
+                if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position) && angleInDegrees > 2) {
+                    Matter.Body.rotate(b, Math.PI / 2);
+                    p5imgs[i] = utils.rotateClockwise(p, p5imgs[i]);
+                    break;
+                }
+            }
         });
     }
 }

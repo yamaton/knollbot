@@ -9,6 +9,9 @@ const config: webpack.Configuration = {
     filename: 'main.js',
   },
   devtool: 'inline-source-map',
+  devServer: {
+    port: 9000,
+  },
   module: {
     rules: [
       {

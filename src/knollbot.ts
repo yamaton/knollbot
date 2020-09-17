@@ -11,7 +11,7 @@ import * as poke from "./randompokes";
 
 export namespace Knollbot {
 
-    export const run = () => {
+    export const run = (p: any) => {
 
         // create an engine and runner
         const engine = Matter.Engine.create();
@@ -60,19 +60,6 @@ export namespace Knollbot {
         world.groupingCoeff = params.groupingCoeff;
 
         // --------------------------------------
-        // create a renderer
-        const render = Matter.Render.create({
-            element: document.body,
-            engine: engine,
-            options: {
-                width: ScreenWidth,
-                height: ScreenHeight,
-                // showAngleIndicator: true,
-                showVelocity: false,
-                wireframes: false,    // required to enable sprites!
-                background: '#247c41',
-            },
-        });
 
         // create two boxes
         const bodyOptions = {
@@ -133,11 +120,7 @@ export namespace Knollbot {
             let offsetY = WallOffset + img.height / 2;
             let x = utils.randRange(offsetX, ScreenWidth - offsetX);
             let y = utils.randRange(offsetY, ScreenHeight - offsetY);
-            let options = {
-                ...bodyOptions,
-                render: { sprite: { texture: imgPath } },
-            };
-            return Matter.Bodies.rectangle(x, y, img.width, img.height, options);
+            return Matter.Bodies.rectangle(x, y, img.width, img.height, bodyOptions);
         };
 
         const promisedBoxes = Promise.all(imgPaths.map(getBox));
@@ -177,26 +160,26 @@ export namespace Knollbot {
             wallOptions,
         );
 
-        // mouse and constraint
-        const mouse = Matter.Mouse.create(render.canvas);
-        const constraint = Matter.Constraint.create(
-            {
-                // Must define pointA and pointB unlike IConstraintDefinition interface
-                pointA: mouse.position,
-                pointB: { x: 0, y: 0 },
-                stiffness: 0.2,
-                render: {
-                    visible: false,
-                },
-            },
-        );
-        const mouseConstraint = Matter.MouseConstraint.create(
-            engine,
-            {
-                mouse: mouse,
-                constraint: constraint,
-            }
-        );
+        // // mouse and constraint
+        // const mouse = Matter.Mouse.create(render.canvas);
+        // const constraint = Matter.Constraint.create(
+        //     {
+        //         // Must define pointA and pointB unlike IConstraintDefinition interface
+        //         pointA: mouse.position,
+        //         pointB: { x: 0, y: 0 },
+        //         stiffness: 0.2,
+        //         render: {
+        //             visible: false,
+        //         },
+        //     },
+        // );
+        // const mouseConstraint = Matter.MouseConstraint.create(
+        //     engine,
+        //     {
+        //         mouse: mouse,
+        //         constraint: constraint,
+        //     }
+        // );
 
         // `blocks` is to contain boxes, walls, and mouse constraints
         var blocks: Matter.Body[];
@@ -205,13 +188,35 @@ export namespace Knollbot {
             let boxes = await promisedBoxes;
             blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
             Matter.World.add(world, blocks);
-            Matter.World.add(world, mouseConstraint);
             Matter.Runner.run(runner, engine);
-            Matter.Render.run(render);
         };
 
         setupWorld();
 
+
+        // // p5.play
+        // p.preload = () => {
+
+        // };
+
+
+        // p5 setup
+        p.setup = () => {
+            p.createCanvas(ScreenWidth, ScreenHeight);
+        };
+
+        // p5 draw
+        p.draw = () => {
+            p.background(0);
+            p.fill('#247c41');
+            for (let block of blocks) {
+                const w = utils.getWidth(block);
+                const h = utils.getHeight(block);
+                const x = Math.floor(block.position.x - w / 2);
+                const y = Math.floor(block.position.y - h / 2);
+                p.rect(x, y, w, h);
+            }
+        };
 
         // main loop
         var counter = 0;
@@ -248,34 +253,22 @@ export namespace Knollbot {
 
 
         // Rotate a block by double clicking
-        document.addEventListener('dblclick', () => {
-            console.log(`--- Double click at t=${counter} ---`);
-            blocks
-                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-                .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
-        });
+        // document.addEventListener('dblclick', () => {
+        //     console.log(`--- Double click at t=${counter} ---`);
+        //     blocks
+        //         .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
+        //         .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
+        // });
 
-        // Rotate a block by touch rotation
-        document.addEventListener('touchmove', (e) => {
-            let touch = e.changedTouches.item(0);
-            let angleInRadian = Math.PI / 180 * (touch?.rotationAngle ?? 0);
-            console.log(`--- Touch rotation activated at t=${counter} ---`);
-            console.log(`    rotation angle = ${touch?.rotationAngle} (deg)`)
-            blocks
-                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-                .forEach(b => Matter.Body.rotate(b, angleInRadian));
-        });
-
-        return {
-            engine: engine,
-            runner: runner,
-            render: render,
-            canvas: render.canvas,
-            stop: () => {
-                Matter.Render.stop(render);
-                Matter.Runner.stop(runner);
-            }
-        };
-
+        // // Rotate a block by touch rotation
+        // document.addEventListener('touchmove', (e) => {
+        //     let touch = e.changedTouches.item(0);
+        //     let angleInRadian = Math.PI / 180 * (touch?.rotationAngle ?? 0);
+        //     console.log(`--- Touch rotation activated at t=${counter} ---`);
+        //     console.log(`    rotation angle = ${touch?.rotationAngle} (deg)`)
+        //     blocks
+        //         .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
+        //         .forEach(b => Matter.Body.rotate(b, angleInRadian));
+        // });
     }
 }

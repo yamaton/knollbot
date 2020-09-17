@@ -161,25 +161,25 @@ export namespace Knollbot {
         );
 
         // // mouse and constraint
-        // const mouse = Matter.Mouse.create(render.canvas);
-        // const constraint = Matter.Constraint.create(
-        //     {
-        //         // Must define pointA and pointB unlike IConstraintDefinition interface
-        //         pointA: mouse.position,
-        //         pointB: { x: 0, y: 0 },
-        //         stiffness: 0.2,
-        //         render: {
-        //             visible: false,
-        //         },
-        //     },
-        // );
-        // const mouseConstraint = Matter.MouseConstraint.create(
-        //     engine,
-        //     {
-        //         mouse: mouse,
-        //         constraint: constraint,
-        //     }
-        // );
+        const mouse = Matter.Mouse.create(document.body);
+        const constraint = Matter.Constraint.create(
+            {
+                // Must define pointA and pointB unlike IConstraintDefinition interface
+                pointA: mouse.position,
+                pointB: { x: 0, y: 0 },
+                stiffness: 0.2,
+                render: {
+                    visible: false,
+                },
+            },
+        );
+        const mouseConstraint = Matter.MouseConstraint.create(
+            engine,
+            {
+                mouse: mouse,
+                constraint: constraint,
+            }
+        );
 
         // `blocks` is to contain boxes, walls, and mouse constraints
         var blocks: Matter.Body[];
@@ -188,17 +188,11 @@ export namespace Knollbot {
             let boxes = await promisedBoxes;
             blocks = [...boxes, wallTop, wallBottom, wallLeft, wallRight]
             Matter.World.add(world, blocks);
+            Matter.World.add(world, mouseConstraint);
             Matter.Runner.run(runner, engine);
         };
 
         setupWorld();
-
-
-        // // p5.play
-        // p.preload = () => {
-
-        // };
-
 
         // p5 setup
         p.setup = () => {
@@ -253,22 +247,23 @@ export namespace Knollbot {
 
 
         // Rotate a block by double clicking
-        // document.addEventListener('dblclick', () => {
-        //     console.log(`--- Double click at t=${counter} ---`);
-        //     blocks
-        //         .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-        //         .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
-        // });
+        document.addEventListener('dblclick', () => {
+            console.log(`--- Double click at t=${counter} ---`);
+            blocks
+                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
+                .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
+        });
+
 
         // // Rotate a block by touch rotation
-        // document.addEventListener('touchmove', (e) => {
-        //     let touch = e.changedTouches.item(0);
-        //     let angleInRadian = Math.PI / 180 * (touch?.rotationAngle ?? 0);
-        //     console.log(`--- Touch rotation activated at t=${counter} ---`);
-        //     console.log(`    rotation angle = ${touch?.rotationAngle} (deg)`)
-        //     blocks
-        //         .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-        //         .forEach(b => Matter.Body.rotate(b, angleInRadian));
-        // });
+        document.addEventListener('touchmove', (e) => {
+            let touch = e.changedTouches.item(0);
+            let angleInRadian = Math.PI / 180 * (touch?.rotationAngle ?? 0);
+            console.log(`--- Touch rotation activated at t=${counter} ---`);
+            console.log(`    rotation angle = ${touch?.rotationAngle} (deg)`);
+            blocks
+                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
+                .forEach(b => Matter.Body.rotate(b, angleInRadian));
+        });
     }
 }

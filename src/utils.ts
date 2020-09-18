@@ -139,11 +139,15 @@ export const negate = (v: Vector): Vector => {
   return { x: -v.x, y: -v.y };
 }
 
+export const makePair = <T>(a: T, b: T): Pair<T> => {
+  return { first: a, second: b };
+}
+
 export const makeUnorderedPair = <T>(a: T, b: T): Pair<T> => {
   if (b < a) {
     [a, b] = [b, a];
   }
-  return { first: a, second: b };
+  return makePair(a, b);
 }
 
 export const getWidth = (block: Matter.Body): number => {

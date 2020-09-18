@@ -283,7 +283,6 @@ export namespace Knollbot {
 
         // Rotate a block by touch rotation
         document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
             let touch = e.changedTouches.item(0);
             let angleInDegrees = touch?.rotationAngle ?? 0;
             console.log(`--- Touch rotation activated at t=${counter} ---`);
@@ -298,34 +297,5 @@ export namespace Knollbot {
                 }
             }
         });
-
-        // prevent default in p5 touch / mouse events
-        p.touchMoved = () => {
-            return false;
-        }
-
-        p.touchStarted = () => {
-            return false;
-        }
-
-        p.touchEnded = () => {
-            return false;
-        }
-
-        p.mouseMoved = () => {
-            return false;
-        }
-
-        p.mouseDragged = () => {
-            return false;
-        }
-
-        p.mousePressed = () => {
-            return false;
-        }
-
-        p.mouseWheel = () => {
-            return false;
-        }
     }
 }

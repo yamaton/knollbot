@@ -1,4 +1,4 @@
-const imgRoot = "./public/lego/";
+const imgRoot = "./lego/";
 const imgNames = [
     "blue_1x2.png",
     "blue_1x2.png",

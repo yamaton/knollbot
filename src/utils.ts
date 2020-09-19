@@ -10,12 +10,12 @@ export interface Vector {
   y: number,
 }
 
-export const arrMax = (xs: number[]): number => xs.reduce((acc, x) => Math.max(acc, x), -Infinity);
-export const arrMin = (xs: number[]): number => xs.reduce((acc, x) => Math.min(acc, x), Infinity);
-export const arrSum = (xs: number[]): number => xs.reduce((acc, x) => acc + x, 0);
-export const arrMean = (xs: number[]): number => arrSum(xs) / xs.length;
+export const max = (xs: number[]): number => xs.reduce((acc, x) => Math.max(acc, x), -Infinity);
+export const min = (xs: number[]): number => xs.reduce((acc, x) => Math.min(acc, x), Infinity);
+export const sum = (xs: number[]): number => xs.reduce((acc, x) => acc + x, 0);
+export const mean = (xs: number[]): number => sum(xs) / xs.length;
 
-export const arrMetaBy = <T>(xs: T[], f: (a: T) => number, reduce: (a: number[]) => number): T[] => {
+export const metasBy = <T>(xs: T[], f: (a: T) => number, reduce: (a: number[]) => number): T[] => {
   let ys = xs.map(f)
   let ymax = reduce(ys);
   let res = Array<T>();
@@ -27,34 +27,34 @@ export const arrMetaBy = <T>(xs: T[], f: (a: T) => number, reduce: (a: number[])
   return res;
 };
 
-export const arrMaxBy = <T>({ xs, f }: { xs: T[]; f: (a: T) => number; }): T[] => {
-  return arrMetaBy(xs, f, arrMax);
+export const maxsBy = <T>(xs: T[], f: ((a: T) => number)): T[] => {
+  return metasBy(xs, f, max);
 }
 
-export const arrMinBy = <T>({ xs, f }: { xs: T[]; f: (a: T) => number; }): T[] => {
-  return arrMetaBy(xs, f, arrMin);
+export const minsBy = <T>(xs: T[], f: ((a: T) => number)): T[] => {
+  return metasBy(xs, f, min);
 }
 
 export const vectorMean = (vec: Vector[]): Vector => {
-  let x = arrMean(vec.map(v => v.x));
-  let y = arrMean(vec.map(v => v.y));
+  let x = mean(vec.map(v => v.x));
+  let y = mean(vec.map(v => v.y));
   return { x: x, y: y };
 }
 
 export const rightmostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMaxBy({ xs: points, f: p => p.x }));
+  return vectorMean(maxsBy(points, p => p.x));
 }
 
 export const leftmostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMinBy({ xs: points, f: p => p.x }));
+  return vectorMean(minsBy(points, p => p.x));
 }
 
 export const topmostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMinBy({ xs: points, f: p => p.y }));
+  return vectorMean(minsBy(points, p => p.y));
 }
 
 export const bottommostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMaxBy({ xs: points, f: p => p.y }));
+  return vectorMean(maxsBy(points, p => p.y));
 }
 
 export const distHoriz = (pointA: Vector, pointB: Vector): number => {
@@ -152,12 +152,12 @@ export const makeUnorderedPair = <T>(a: T, b: T): Pair<T> => {
 
 export const getWidth = (block: Matter.Body): number => {
   let xs = block.vertices.map(v => v.x);
-  return arrMax(xs) - arrMin(xs);
+  return max(xs) - min(xs);
 }
 
 export const getHeight = (block: Matter.Body): number => {
   let ys = block.vertices.map(v => v.y);
-  return arrMax(ys) - arrMin(ys);
+  return max(ys) - min(ys);
 }
 
 export const areSameHeight = (foo: Matter.Body, bar: Matter.Body): boolean => {

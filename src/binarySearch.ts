@@ -19,6 +19,11 @@ export const meguru = (xs: number[], f: ((x: number) => boolean)): number => {
   return ok;
 }
 
-export const binarySearch = (xs: number[], target: number): number => {
+export const bisect = (xs: number[], target: number): number => {
   return meguru(xs, (i) => (xs[i] >= target));
+}
+
+
+export const bisectLeft = (xs: number[], target: number): number => {
+  return meguru(xs, (i) => (xs[i] > target));
 }

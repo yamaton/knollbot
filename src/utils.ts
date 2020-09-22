@@ -198,9 +198,9 @@ export const rotateClockwise = (p: p5, src: p5.Image): p5.Image => {
 }
 
 // examples:
-//   argsort(['c', 'a', 'b']) == [2, 0, 1]
-export const argsort = <T>(xs: T[]): number[] => {
-  const indices = xs.map((x, i) => [x, i]).sort().map(([x, i]) => i as number);
+//   argsort([100, 1, 10]) == [2, 0, 1]
+export const argsort = (xs: number[]): number[] => {
+  const indices = xs.map((x, i) => [x, i]).sort((a, b) => a[0] - b[0]).map(([x, i]) => i);
   return indices;
 }
 
@@ -213,10 +213,10 @@ export const argsort = <T>(xs: T[]): number[] => {
 //    undoSortBy(xs.sort(), xs) == xs
 //
 // examples:
-//    undoSortBy([0, 1, 2], ['c', 'a', 'b']) == [2, 0, 1]
-export const undoSortBy = <T, S>(xs: T[], ref: S[]): T[] => {
+//    undoSortBy([0, 1, 2], [100, 1, 10]) == [2, 0, 1]
+export const undoSortBy = (xs: number[], ref: number[]): number[] => {
   const indices = argsort(ref);
-  const res = Array<T>(xs.length);
+  const res = Array<number>(xs.length);
   for (let i = 0; i < xs.length; i++) {
     const idx = indices[i];
     res[idx] = xs[i];

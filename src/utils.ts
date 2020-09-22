@@ -196,3 +196,30 @@ export const rotateClockwise = (p: p5, src: p5.Image): p5.Image => {
 
   return tgt;
 }
+
+// examples:
+//   argsort(['c', 'a', 'b']) == [2, 0, 1]
+export const argsort = <T>(xs: T[]): number[] => {
+  const indices = xs.map((x, i) => [x, i]).sort().map(([x, i]) => i as number);
+  return indices;
+}
+
+
+// undoSortBy returns inverse argsort such an order that
+// maps argsort array into [0, 1, ..., arr.length - 1].
+//
+// properties:
+//    undoSortBy(argsort(xs), xs) == [0, ..., xs.length - 1]
+//    undoSortBy(xs.sort(), xs) == xs
+//
+// examples:
+//    undoSortBy([0, 1, 2], ['c', 'a', 'b']) == [2, 0, 1]
+export const undoSortBy = <T, S>(xs: T[], ref: S[]): T[] => {
+  const indices = argsort(ref);
+  const res = Array<T>(xs.length);
+  for (let i = 0; i < xs.length; i++) {
+    const idx = indices[i];
+    res[idx] = xs[i];
+  }
+  return res;
+}

@@ -8,6 +8,7 @@ import * as repulsion from "./repulsion";
 import * as align from "./alignment";
 import * as grouping from "./grouping";
 import * as poke from "./randompokes";
+import { getAttractorXs, getAttractorYs } from "./alignment2";
 
 
 export namespace Knollbot {
@@ -229,6 +230,19 @@ export namespace Knollbot {
                 const x = Math.floor(block.position.x - w / 2);
                 const y = Math.floor(block.position.y - h / 2);
                 p.rect(x, y, w, h);
+            }
+
+            const boxes = blocks.slice(0, blocks.length - 4);
+            const attractorXs = getAttractorXs(boxes, 15);
+            for (let x of attractorXs) {
+                p.stroke('#EF6B22');
+                p.line(x, 0, x, ScreenHeight);
+            }
+
+            const attractorYs = getAttractorYs(boxes, 15);
+            for (let y of attractorYs) {
+                p.stroke('#F29089');
+                p.line(0, y, ScreenWidth, y);
             }
         };
 

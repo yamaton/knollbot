@@ -1,5 +1,6 @@
+import Matter from "matter-js";
 import { bisect, bisectLeft } from "./binarySearch";
-import { mean, undoSortBy } from "./utils";
+import { mean, undoSortBy, min, max, unique} from "./utils";
 
 export const fixedRadius1dClustering = (xs: number[], r: number): number[] => {
 
@@ -57,4 +58,38 @@ export const fixedRadius1dClustering = (xs: number[], r: number): number[] => {
   return res;
 }
 
+const getPointsMeta = (boxes: Matter.Body[], f: ((v: Matter.Vector) => number)): number[] => {
+  const res = Array<number>(2 * boxes.length);
+  for (let i = 0; i < boxes.length; i++) {
+    const box = boxes[i];
+    const arr = box.vertices.map(f);
+    res[2 * i] = min(arr);
+    res[2 * i + 1] = max(arr);
+  }
+  return res;
+}
 
+const getPointsX = (boxes: Matter.Body[]): number[] => {
+  return getPointsMeta(boxes, (p) => p.x);
+}
+
+const getPointsY = (boxes: Matter.Body[]): number[] => {
+  return getPointsMeta(boxes, (p) => p.y);
+}
+
+
+const getAttractorsMeta = (boxes: Matter.Body[], radius: number, f: ((blocks: Matter.Body[]) => number[])) => {
+  let xs: number[];
+  xs = f(boxes).sort((a, b) => a - b);
+  xs = fixedRadius1dClustering(xs, radius).filter(x => (x !== undefined));
+  xs = unique(xs);
+  return xs;
+}
+
+export const getAttractorXs = (boxes: Matter.Body[], radius: number): number[] => {
+  return getAttractorsMeta(boxes, radius, getPointsX);
+}
+
+export const getAttractorYs = (boxes: Matter.Body[], radius: number): number[] => {
+  return getAttractorsMeta(boxes, radius, getPointsY);
+}

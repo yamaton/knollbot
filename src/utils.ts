@@ -223,3 +223,17 @@ export const undoSortBy = (xs: number[], ref: number[]): number[] => {
   }
   return res;
 }
+
+
+export const unique = (xs: number[]): number[] => {
+  xs.sort((a, b) => a - b);
+  let res = Array<number>();
+  let prev = Number.MIN_SAFE_INTEGER;
+  for (let x of xs) {
+    if (x !== prev) {
+      res.push(x);
+      prev = x;
+    }
+  }
+  return res;
+}

@@ -61,7 +61,7 @@ export namespace Knollbot {
         world.groupingCoeff = params.groupingCoeff;
 
         // Flag displaying alignment lines
-        world.displayLines = true;
+        world.displayLines = false;
 
         // --------------------------------------
         // create two boxes

@@ -1,6 +1,7 @@
 import Matter from "matter-js";
 import { bisect, bisectLeft } from "./binarySearch";
-import { mean, undoSortBy, min, max, unique} from "./utils";
+import { mean, undoSortBy, min, max, unique, tally } from "./utils";
+import { WorldExtended } from "./exttypes";
 
 export const fixedRadius1dClustering = (xs: number[], r: number): number[] => {
 
@@ -58,7 +59,7 @@ export const fixedRadius1dClustering = (xs: number[], r: number): number[] => {
   return res;
 }
 
-const getPointsMeta = (boxes: Matter.Body[], f: ((v: Matter.Vector) => number)): number[] => {
+const getEdgesMeta = (boxes: Matter.Body[], f: ((v: Matter.Vector) => number)): number[] => {
   const res = Array<number>(2 * boxes.length);
   for (let i = 0; i < boxes.length; i++) {
     const box = boxes[i];
@@ -69,27 +70,81 @@ const getPointsMeta = (boxes: Matter.Body[], f: ((v: Matter.Vector) => number)):
   return res;
 }
 
-const getPointsX = (boxes: Matter.Body[]): number[] => {
-  return getPointsMeta(boxes, (p) => p.x);
+const getEdgesX = (boxes: Matter.Body[]): number[] => {
+  return getEdgesMeta(boxes, (p) => p.x);
 }
 
-const getPointsY = (boxes: Matter.Body[]): number[] => {
-  return getPointsMeta(boxes, (p) => p.y);
+const getEdgesY = (boxes: Matter.Body[]): number[] => {
+  return getEdgesMeta(boxes, (p) => p.y);
 }
 
 
-const getAttractorsMeta = (boxes: Matter.Body[], radius: number, f: ((blocks: Matter.Body[]) => number[])) => {
+const getAttractorsMeta = (boxes: Matter.Body[], radius: number, getEdges: ((blocks: Matter.Body[]) => number[])) => {
   let xs: number[];
-  xs = f(boxes).sort((a, b) => a - b);
-  xs = fixedRadius1dClustering(xs, radius).filter(x => (x !== undefined));
-  xs = unique(xs.map(Math.round));
+  xs = getEdges(boxes);
+  xs = fixedRadius1dClustering(xs, radius);
+  xs = xs.filter(x => (x !== undefined)).map(Math.round).sort((a, b) => a - b);
+  xs = unique(xs);
   return xs;
 }
 
 export const getAttractorXs = (boxes: Matter.Body[], radius: number): number[] => {
-  return getAttractorsMeta(boxes, radius, getPointsX);
+  return getAttractorsMeta(boxes, radius, getEdgesX);
 }
 
 export const getAttractorYs = (boxes: Matter.Body[], radius: number): number[] => {
-  return getAttractorsMeta(boxes, radius, getPointsY);
+  return getAttractorsMeta(boxes, radius, getEdgesY);
+}
+
+
+const applyBoxesAlignmentX = (world: WorldExtended, boxes: Matter.Body[]) => {
+  const edges = getEdgesX(boxes);
+  const attractors = fixedRadius1dClustering(edges, world.alignmentForceRange);
+  const attrScore = tally(attractors);
+
+  for (let i = 0; i < boxes.length; i++) {
+    if (attrScore[2 * i] == 0 && attrScore[2 * i + 1] == 0) continue;
+    const box = boxes[i];
+    if (box.isStatic) continue;
+    let idx = 2 * i;
+    if (attrScore[2 * i] < attrScore[2 * i + 1]) {
+      idx = 2 * i + 1;
+    }
+    const srcX = attractors[idx];
+    const tgt = box.vertices.filter(v => v.x == edges[idx])[0];
+    const sign = (tgt.x > srcX) ? -1 : 1;
+    const dist = Math.abs(tgt.x - srcX);
+    const forceX = sign * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
+    Matter.Body.applyForce(box, tgt, { x: forceX, y: 0 });
+  }
+}
+
+
+const applyBoxesAlignmentY = (world: WorldExtended, boxes: Matter.Body[]) => {
+  const edges = getEdgesY(boxes);
+  const attractors = fixedRadius1dClustering(edges, world.alignmentForceRange);
+  const attrScore = tally(attractors);
+
+  for (let i = 0; i < boxes.length; i++) {
+    if (attrScore[2 * i] == 0 && attrScore[2 * i + 1] == 0) continue;
+    const box = boxes[i];
+    if (box.isStatic) continue;
+    let idx = 2 * i;
+    if (attrScore[2 * i] < attrScore[2 * i + 1]) {
+      idx = 2 * i + 1;
+    }
+    const srcY = attractors[idx];
+    const tgt = box.vertices.filter(v => v.y == edges[idx])[0];
+    const sign = (tgt.y > srcY) ? -1 : 1;
+    const dist = Math.abs(tgt.y - srcY);
+    const forceY = sign * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
+    Matter.Body.applyForce(box, tgt, { x: 0, y: forceY });
+  }
+}
+
+
+export const applyAlignment = (world: WorldExtended, blocks: Matter.Body[]) => {
+  // const boxes = blocks.slice(0, blocks.length - 4);
+  applyBoxesAlignmentX(world, blocks);
+  applyBoxesAlignmentY(world, blocks);
 }

@@ -237,3 +237,21 @@ export const unique = (xs: number[]): number[] => {
   }
   return res;
 }
+
+
+// [Note] O(N^2) Rewrite if necessary
+//
+// examples:
+//   tally([undefined, 1, -3, 0, -3, undefined, -3, 1])
+//   == [0, 2, 3, 1, 3, 0, 3, 2]
+export const tally = (xs: number[]): number[] => {
+  const getCount = (val: number) => {
+    let ans = 0;
+    if (val !== undefined) {
+      ans = xs.filter(x => x === val).length;
+    }
+    return ans;
+  }
+
+  return xs.map(getCount);
+}

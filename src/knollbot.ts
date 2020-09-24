@@ -5,10 +5,9 @@ import { WorldExtended } from "./exttypes";
 import { imgPaths, params } from "./config";
 import * as utils from "./utils";
 import * as repulsion from "./repulsion";
-import * as align from "./alignment";
 import * as grouping from "./grouping";
 import * as poke from "./randompokes";
-import { getAttractorXs, getAttractorYs } from "./alignment2";
+import * as align from "./alignment2";
 
 
 export namespace Knollbot {
@@ -237,13 +236,13 @@ export namespace Knollbot {
 
             if (world.displayLines) {
                 const boxes = blocks.slice(0, blocks.length - 4);
-                const attractorXs = getAttractorXs(boxes, world.alignmentForceRange);
+                const attractorXs = align.getAttractorXs(boxes, world.alignmentForceRange);
                 for (let x of attractorXs) {
                     p.stroke(params.colorLinesVertical);
                     p.line(x, WallVisible, x, ScreenHeight - WallVisible);
                 }
 
-                const attractorYs = getAttractorYs(boxes, world.alignmentForceRange);
+                const attractorYs = align.getAttractorYs(boxes, world.alignmentForceRange);
                 for (let y of attractorYs) {
                     p.stroke(params.colorLinesHorizontal);
                     p.line(WallVisible, y, ScreenWidth - WallVisible, y);
@@ -288,8 +287,6 @@ export namespace Knollbot {
                 world.displayLines = !world.displayLines;
                 console.log(`Toggled displayLines: ${world.displayLines}`);
             }
-
-            console.log(`e.code: ${e.code}`);
         });
 
 

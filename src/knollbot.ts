@@ -61,8 +61,10 @@ export namespace Knollbot {
         // Grouping attraction/repulsion
         world.groupingCoeff = params.groupingCoeff;
 
-        // --------------------------------------
+        // Flag displaying alignment lines
+        world.displayLines = true;
 
+        // --------------------------------------
         // create two boxes
         const bodyOptions = {
             inertia: Infinity,
@@ -233,17 +235,19 @@ export namespace Knollbot {
                 p.rect(x, y, w, h);
             }
 
-            const boxes = blocks.slice(0, blocks.length - 4);
-            const attractorXs = getAttractorXs(boxes, world.alignmentForceRange);
-            for (let x of attractorXs) {
-                p.stroke('#EF6B22');
-                p.line(x, WallVisible, x, ScreenHeight - WallVisible);
-            }
+            if (world.displayLines) {
+                const boxes = blocks.slice(0, blocks.length - 4);
+                const attractorXs = getAttractorXs(boxes, world.alignmentForceRange);
+                for (let x of attractorXs) {
+                    p.stroke('#EF6B22');
+                    p.line(x, WallVisible, x, ScreenHeight - WallVisible);
+                }
 
-            const attractorYs = getAttractorYs(boxes, world.alignmentForceRange);
-            for (let y of attractorYs) {
-                p.stroke('#F29089');
-                p.line(WallVisible, y, ScreenWidth - WallVisible, y);
+                const attractorYs = getAttractorYs(boxes, world.alignmentForceRange);
+                for (let y of attractorYs) {
+                    p.stroke('#F29089');
+                    p.line(WallVisible, y, ScreenWidth - WallVisible, y);
+                }
             }
         };
 
@@ -272,12 +276,20 @@ export namespace Knollbot {
         });
 
 
-        // Toggle forces by pressing Space key
         document.addEventListener('keydown', (e) => {
+            // Toggle forces by pressing Space key
             if (e.code === "Space") {
                 world.forceOn = !world.forceOn;
-                console.log(`Toggled force: forceOn is ${world.forceOn} now`);
+                console.log(`Toggled force: ${world.forceOn}`);
             }
+
+            // Toggle alignment lines with L key
+            if (e.code === "KeyL") {
+                world.displayLines = !world.displayLines;
+                console.log(`Toggled displayLines: ${world.displayLines}`);
+            }
+
+            console.log(`e.code: ${e.code}`);
         });
 
 

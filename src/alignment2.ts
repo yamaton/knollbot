@@ -82,7 +82,7 @@ const getAttractorsMeta = (boxes: Matter.Body[], radius: number, f: ((blocks: Ma
   let xs: number[];
   xs = f(boxes).sort((a, b) => a - b);
   xs = fixedRadius1dClustering(xs, radius).filter(x => (x !== undefined));
-  xs = unique(xs);
+  xs = unique(xs.map(Math.round));
   return xs;
 }
 

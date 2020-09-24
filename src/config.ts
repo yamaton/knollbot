@@ -61,4 +61,8 @@ export const params = {
     // Grouping attraction/repulsion
     groupingCoeff: 400,
 
+    // Alignment line colors
+    colorLinesVertical: '#EF6B22',
+    colorLinesHorizontal: '#F29089',
+
 }

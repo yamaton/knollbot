@@ -239,13 +239,13 @@ export namespace Knollbot {
                 const boxes = blocks.slice(0, blocks.length - 4);
                 const attractorXs = getAttractorXs(boxes, world.alignmentForceRange);
                 for (let x of attractorXs) {
-                    p.stroke('#EF6B22');
+                    p.stroke(params.colorLinesVertical);
                     p.line(x, WallVisible, x, ScreenHeight - WallVisible);
                 }
 
                 const attractorYs = getAttractorYs(boxes, world.alignmentForceRange);
                 for (let y of attractorYs) {
-                    p.stroke('#F29089');
+                    p.stroke(params.colorLinesHorizontal);
                     p.line(WallVisible, y, ScreenWidth - WallVisible, y);
                 }
             }

@@ -7,7 +7,7 @@ Currently providing UI to play knolling. Work in progress.
 
 ## Knolling demo
 
-https://yamaton.github.io/index.html
+https://yamaton.github.io/knollbot
 
 
 
@@ -22,10 +22,10 @@ npm install
 # apply a patch to @types/matter-js 0.14.5
 ./apply_patch.sh
 
-# Assume typescript is already installed
-npm run build
+# Run webpack dev server
+npm run start:dev
 
 # Open browser
-firefox index.html
+firefox http://localhost:9000
 ```
 

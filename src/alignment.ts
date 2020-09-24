@@ -101,7 +101,7 @@ const createBoxWallBipartiteMeta = (world: WorldExtended, blocks: Matter.Body[],
       if (dist < world.alignmentForceWallRange) {
         const e: EdgeExtended = {
           weight: dist,
-          pair: { first: idxBox, second: idxWall },
+          pair: utils.makePair(idxBox, idxWall),
           posSrc: posBox,
           posTgt: posWall,
           idxSrc: idxBox,
@@ -118,11 +118,11 @@ const createBoxWallBipartiteMeta = (world: WorldExtended, blocks: Matter.Body[],
   return g;
 }
 
+
 const applyBoxWallAlignment = (world: WorldExtended, blocks: Matter.Body[]) => {
   let gX = createBoxWallBipartiteMeta(world, blocks, utils.cloestPointPairX);
   let gY = createBoxWallBipartiteMeta(world, blocks, utils.cloestPointPairY);
 
-  // alignment force occurs at MST edges only
   gX.edges.forEach(e => applyAlignmentForceX(world, blocks, e));
   gY.edges.forEach(e => applyAlignmentForceY(world, blocks, e));
 }

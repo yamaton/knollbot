@@ -1,17 +1,18 @@
 import Matter from "matter-js";
+import p5 from "p5";
 
 import { WorldExtended } from "./exttypes";
 import { imgPaths, params } from "./config";
 import * as utils from "./utils";
 import * as repulsion from "./repulsion";
-import * as align from "./alignment";
 import * as grouping from "./grouping";
 import * as poke from "./randompokes";
+import * as align from "./alignment2";
 
 
 export namespace Knollbot {
 
-    export const run = () => {
+    export const run = (p: any) => {
 
         // create an engine and runner
         const engine = Matter.Engine.create();
@@ -59,21 +60,10 @@ export namespace Knollbot {
         // Grouping attraction/repulsion
         world.groupingCoeff = params.groupingCoeff;
 
-        // --------------------------------------
-        // create a renderer
-        const render = Matter.Render.create({
-            element: document.body,
-            engine: engine,
-            options: {
-                width: ScreenWidth,
-                height: ScreenHeight,
-                // showAngleIndicator: true,
-                showVelocity: false,
-                wireframes: false,    // required to enable sprites!
-                background: '#247c41',
-            },
-        });
+        // Flag displaying alignment lines
+        world.displayLines = false;
 
+        // --------------------------------------
         // create two boxes
         const bodyOptions = {
             inertia: Infinity,
@@ -133,11 +123,7 @@ export namespace Knollbot {
             let offsetY = WallOffset + img.height / 2;
             let x = utils.randRange(offsetX, ScreenWidth - offsetX);
             let y = utils.randRange(offsetY, ScreenHeight - offsetY);
-            let options = {
-                ...bodyOptions,
-                render: { sprite: { texture: imgPath } },
-            };
-            return Matter.Bodies.rectangle(x, y, img.width, img.height, options);
+            return Matter.Bodies.rectangle(x, y, img.width, img.height, bodyOptions);
         };
 
         const promisedBoxes = Promise.all(imgPaths.map(getBox));
@@ -178,7 +164,7 @@ export namespace Knollbot {
         );
 
         // mouse and constraint
-        const mouse = Matter.Mouse.create(render.canvas);
+        const mouse = Matter.Mouse.create(document.body);
         const constraint = Matter.Constraint.create(
             {
                 // Must define pointA and pointB unlike IConstraintDefinition interface
@@ -207,11 +193,62 @@ export namespace Knollbot {
             Matter.World.add(world, blocks);
             Matter.World.add(world, mouseConstraint);
             Matter.Runner.run(runner, engine);
-            Matter.Render.run(render);
         };
 
-        setupWorld();
 
+        // p5 preload that waits till done
+        var p5imgs: p5.Image[];
+        p.preload = () => {
+            setupWorld();
+            p5imgs = imgPaths.map(p.loadImage);
+        };
+
+        // p5 setup that runs in async
+        p.setup = () => {
+            p.createCanvas(ScreenWidth, ScreenHeight);
+        };
+
+        // p5 draw
+        p.draw = () => {
+            p.background('#247c41');
+            p.fill(0);
+            // draw blocks
+            for (let i in p5imgs) {
+                // p.push();
+                const block = blocks[i];
+                const img = p5imgs[i];
+                const w = utils.getWidth(block);
+                const h = utils.getHeight(block);
+                const x = Math.floor(block.position.x - w / 2);
+                const y = Math.floor(block.position.y - h / 2);
+                p.image(img, x, y);
+            }
+            // draw walls
+            for (let i = 0; i < 4; i++) {
+                const block = blocks[p5imgs.length + i];
+                const w = utils.getWidth(block);
+                const h = utils.getHeight(block);
+                const x = Math.floor(block.position.x - w / 2);
+                const y = Math.floor(block.position.y - h / 2);
+                p.noStroke();
+                p.rect(x, y, w, h);
+            }
+
+            if (world.displayLines) {
+                const boxes = blocks.slice(0, blocks.length - 4);
+                const attractorXs = align.getAttractorXs(boxes, world.alignmentForceRange);
+                for (let x of attractorXs) {
+                    p.stroke(params.colorLinesVertical);
+                    p.line(x, WallVisible, x, ScreenHeight - WallVisible);
+                }
+
+                const attractorYs = align.getAttractorYs(boxes, world.alignmentForceRange);
+                for (let y of attractorYs) {
+                    p.stroke(params.colorLinesHorizontal);
+                    p.line(WallVisible, y, ScreenWidth - WallVisible, y);
+                }
+            }
+        };
 
         // main loop
         var counter = 0;
@@ -238,11 +275,17 @@ export namespace Knollbot {
         });
 
 
-        // Toggle forces by pressing Space key
         document.addEventListener('keydown', (e) => {
+            // Toggle forces by pressing Space key
             if (e.code === "Space") {
                 world.forceOn = !world.forceOn;
-                console.log(`Toggled force: forceOn is ${world.forceOn} now`);
+                console.log(`Toggled force: ${world.forceOn}`);
+            }
+
+            // Toggle alignment lines with L key
+            if (e.code === "KeyL") {
+                world.displayLines = !world.displayLines;
+                console.log(`Toggled displayLines: ${world.displayLines}`);
             }
         });
 
@@ -250,32 +293,33 @@ export namespace Knollbot {
         // Rotate a block by double clicking
         document.addEventListener('dblclick', () => {
             console.log(`--- Double click at t=${counter} ---`);
-            blocks
-                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-                .forEach(b => Matter.Body.rotate(b, Math.PI / 2));
+            // iterate over blocks except for walls
+            for (let i = 0; i < blocks.length - 4; i++) {
+                const b = blocks[i];
+                if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position)) {
+                    Matter.Body.rotate(b, Math.PI / 2);
+                    p5imgs[i] = utils.rotateClockwise(p, p5imgs[i]);
+                    break;
+                }
+            }
         });
+
 
         // Rotate a block by touch rotation
         document.addEventListener('touchmove', (e) => {
             let touch = e.changedTouches.item(0);
-            let angleInRadian = Math.PI / 180 * (touch?.rotationAngle ?? 0);
+            let angleInDegrees = touch?.rotationAngle ?? 0;
             console.log(`--- Touch rotation activated at t=${counter} ---`);
-            console.log(`    rotation angle = ${touch?.rotationAngle} (deg)`)
-            blocks
-                .filter(b => (!b.isStatic) && Matter.Bounds.contains(b.bounds, mouse.position))
-                .forEach(b => Matter.Body.rotate(b, angleInRadian));
-        });
-
-        return {
-            engine: engine,
-            runner: runner,
-            render: render,
-            canvas: render.canvas,
-            stop: () => {
-                Matter.Render.stop(render);
-                Matter.Runner.stop(runner);
+            console.log(`    rotation angle = ${angleInDegrees} (deg)`);
+            // iterate over blocks except for walls
+            for (let i = 0; i < blocks.length - 4; i++) {
+                const b = blocks[i];
+                if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position) && angleInDegrees > 2) {
+                    Matter.Body.rotate(b, Math.PI / 2);
+                    p5imgs[i] = utils.rotateClockwise(p, p5imgs[i]);
+                    break;
+                }
             }
-        };
-
+        });
     }
 }

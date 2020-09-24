@@ -1,3 +1,5 @@
+import p5 from "p5";
+
 export type Pair<T> = {
   first: T,
   second: T,
@@ -8,12 +10,12 @@ export interface Vector {
   y: number,
 }
 
-export const arrMax = (xs: number[]): number => xs.reduce((acc, x) => Math.max(acc, x), -Infinity);
-export const arrMin = (xs: number[]): number => xs.reduce((acc, x) => Math.min(acc, x), Infinity);
-export const arrSum = (xs: number[]): number => xs.reduce((acc, x) => acc + x, 0);
-export const arrMean = (xs: number[]): number => arrSum(xs) / xs.length;
+export const max = (xs: number[]): number => xs.reduce((acc, x) => Math.max(acc, x), -Infinity);
+export const min = (xs: number[]): number => xs.reduce((acc, x) => Math.min(acc, x), Infinity);
+export const sum = (xs: number[]): number => xs.reduce((acc, x) => acc + x, 0);
+export const mean = (xs: number[]): number => sum(xs) / xs.length;
 
-export const arrMetaBy = <T>(xs: T[], f: (a: T) => number, reduce: (a: number[]) => number): T[] => {
+export const metasBy = <T>(xs: T[], f: (a: T) => number, reduce: (a: number[]) => number): T[] => {
   let ys = xs.map(f)
   let ymax = reduce(ys);
   let res = Array<T>();
@@ -25,34 +27,34 @@ export const arrMetaBy = <T>(xs: T[], f: (a: T) => number, reduce: (a: number[])
   return res;
 };
 
-export const arrMaxBy = <T>({ xs, f }: { xs: T[]; f: (a: T) => number; }): T[] => {
-  return arrMetaBy(xs, f, arrMax);
+export const maxsBy = <T>(xs: T[], f: ((a: T) => number)): T[] => {
+  return metasBy(xs, f, max);
 }
 
-export const arrMinBy = <T>({ xs, f }: { xs: T[]; f: (a: T) => number; }): T[] => {
-  return arrMetaBy(xs, f, arrMin);
+export const minsBy = <T>(xs: T[], f: ((a: T) => number)): T[] => {
+  return metasBy(xs, f, min);
 }
 
 export const vectorMean = (vec: Vector[]): Vector => {
-  let x = arrMean(vec.map(v => v.x));
-  let y = arrMean(vec.map(v => v.y));
+  let x = mean(vec.map(v => v.x));
+  let y = mean(vec.map(v => v.y));
   return { x: x, y: y };
 }
 
 export const rightmostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMaxBy({ xs: points, f: p => p.x }));
+  return vectorMean(maxsBy(points, p => p.x));
 }
 
 export const leftmostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMinBy({ xs: points, f: p => p.x }));
+  return vectorMean(minsBy(points, p => p.x));
 }
 
 export const topmostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMinBy({ xs: points, f: p => p.y }));
+  return vectorMean(minsBy(points, p => p.y));
 }
 
 export const bottommostPoint = (points: Vector[]): Vector => {
-  return vectorMean(arrMaxBy({ xs: points, f: p => p.y }));
+  return vectorMean(maxsBy(points, p => p.y));
 }
 
 export const distHoriz = (pointA: Vector, pointB: Vector): number => {
@@ -137,27 +139,119 @@ export const negate = (v: Vector): Vector => {
   return { x: -v.x, y: -v.y };
 }
 
+export const makePair = <T>(a: T, b: T): Pair<T> => {
+  return { first: a, second: b };
+}
+
 export const makeUnorderedPair = <T>(a: T, b: T): Pair<T> => {
   if (b < a) {
     [a, b] = [b, a];
   }
-  return { first: a, second: b };
+  return makePair(a, b);
 }
 
 export const getWidth = (block: Matter.Body): number => {
   let xs = block.vertices.map(v => v.x);
-  return arrMax(xs) - arrMin(xs);
+  return max(xs) - min(xs);
 }
 
 export const getHeight = (block: Matter.Body): number => {
   let ys = block.vertices.map(v => v.y);
-  return arrMax(ys) - arrMin(ys);
+  return max(ys) - min(ys);
 }
 
-export const areSameHeight = (foo: Matter.Body, bar: Matter.Body) => {
+export const areSameHeight = (foo: Matter.Body, bar: Matter.Body): boolean => {
   return getHeight(foo) == getHeight(bar);
 }
 
-export const areSameWidth = (foo: Matter.Body, bar: Matter.Body) => {
+export const areSameWidth = (foo: Matter.Body, bar: Matter.Body): boolean => {
   return getWidth(foo) == getWidth(bar);
+}
+
+
+// credit: https://github.com/processing/p5.js/issues/3767#issuecomment-502873792
+// Rotate image by 90 degrees clockwise
+export const rotateClockwise = (p: p5, src: p5.Image): p5.Image => {
+
+  const w = src.width;
+  const h = src.height;
+  const tgt = p.createImage(h, w); // flip w and h
+
+  src.loadPixels();
+  tgt.loadPixels();
+
+  let indexr = 0;
+  for (let x = 0; x < w; x++) {
+    for (let y = h - 1; y >= 0; y--) {
+      let index = (x + y * w) * 4;
+      for (let i = 0; i < 4; i++) {
+        tgt.pixels[indexr + i] = src.pixels[index + i];
+      }
+      indexr += 4;
+    }
+  }
+
+  src.updatePixels();
+  tgt.updatePixels();
+
+  return tgt;
+}
+
+// examples:
+//   argsort([100, 1, 10]) == [2, 0, 1]
+export const argsort = (xs: number[]): number[] => {
+  const indices = xs.map((x, i) => [x, i]).sort((a, b) => a[0] - b[0]).map(([x, i]) => i);
+  return indices;
+}
+
+
+// undoSortBy returns inverse argsort such an order that
+// maps argsort array into [0, 1, ..., arr.length - 1].
+//
+// properties:
+//    undoSortBy(argsort(xs), xs) == [0, ..., xs.length - 1]
+//    undoSortBy(xs.sort(), xs) == xs
+//
+// examples:
+//    undoSortBy([0, 1, 2], [100, 1, 10]) == [2, 0, 1]
+export const undoSortBy = (xs: number[], ref: number[]): number[] => {
+  const indices = argsort(ref);
+  const res = Array<number>(xs.length);
+  for (let i = 0; i < xs.length; i++) {
+    const idx = indices[i];
+    res[idx] = xs[i];
+  }
+  return res;
+}
+
+
+export const unique = (xs: number[]): number[] => {
+  xs.sort((a, b) => a - b);
+  let res = Array<number>();
+  let prev = Number.MIN_SAFE_INTEGER;
+  for (let x of xs) {
+    if (x !== prev) {
+      res.push(x);
+      prev = x;
+    }
+  }
+  return res;
+}
+
+
+// [Note] O(N^2) Rewrite if necessary
+//
+// examples:
+//   tally([undefined, 1, -3, 0, -3, undefined, -3, 1])
+//   == [0, 2, 3, 1, 3, 0, 3, 2]
+export const tally = (xs: number[]): number[] => {
+  const getCount = (val: number) => {
+    let ans = 0;
+    if (val !== undefined) {
+      ans = xs.filter(x => x === val).length;
+    }
+    return ans;
+  }
+
+  return xs.map(getCount);
 }

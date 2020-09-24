@@ -5,10 +5,14 @@ const config: webpack.Configuration = {
   mode: 'development',  // 'development' or 'production'
   entry: './src/index.ts',
   output: {
-    path: path.resolve(__dirname, 'built'),
+    path: path.resolve(__dirname, 'docs'),
     filename: 'main.js',
   },
   devtool: 'inline-source-map',
+  devServer: {
+    contentBase: path.resolve(__dirname, 'docs'),
+    port: 9000,
+  },
   module: {
     rules: [
       {

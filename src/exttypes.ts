@@ -14,6 +14,7 @@ export interface WorldExtended extends Matter.World {
   repulsionCoeff: number;
   repulsionRange: number;
   groupingCoeff: number;
+  displayLines: boolean;
 }
 
 export type IPointPairFunc = (body1: Matter.Body, body2: Matter.Body) => [utils.Vector, utils.Vector, number];

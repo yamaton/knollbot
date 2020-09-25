@@ -213,8 +213,35 @@ export namespace Knollbot {
         loader.add(utils.unique(imgPaths));
         loader.load((loader) => {
             setupWorld();
+
+            // boxes as sprites
             sprites = imgPaths.map(p => new PIXI.Sprite(loader.resources[p].texture));
+            // set center of sprites as reference points
             sprites.forEach(sprite => sprite.anchor.set(0.5));
+
+            // walls as still sprites
+            // Not calling blocks as they may not be ready
+            for (let i = 0; i < 4; i++) {
+                const wall = PIXI.Sprite.from(PIXI.Texture.WHITE);
+                if (i % 2 == 0) {
+                    wall.width = ScreenWidth;
+                    wall.height = WallVisible;
+                } else {
+                    wall.width = WallVisible;
+                    wall.height = ScreenHeight;
+                }
+                wall.name = `wall${i}`;
+                wall.tint = 0x000000;
+                if (i == 1) {
+                    wall.position.set(ScreenWidth - WallVisible, 0);
+                } else if (i == 2) {
+                    wall.position.set(0, ScreenHeight - WallVisible);
+                } else {
+                    wall.position.set(0, 0);
+                }
+                sprites.push(wall);
+            }
+
             app.stage.addChild(...sprites);
             app.ticker.add(gameLoop);
         });
@@ -229,16 +256,6 @@ export namespace Knollbot {
                 sprite.x = block.position.x;
                 sprite.y = block.position.y;
             }
-
-            // // draw walls
-            // for (let i = 0; i < 4; i++) {
-            //     const block = blocks[imgPaths.length + i];
-            //     const w = utils.getWidth(block);
-            //     const h = utils.getHeight(block);
-            //     const x = Math.floor(block.position.x - w / 2);
-            //     const y = Math.floor(block.position.y - h / 2);
-            //     p.rect(x, y, w, h);
-            // }
 
             // if (world.displayLines) {
             //     const boxes = blocks.slice(0, blocks.length - 4);

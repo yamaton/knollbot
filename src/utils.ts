@@ -1,5 +1,3 @@
-import p5 from "p5";
-
 export type Pair<T> = {
   first: T,
   second: T,
@@ -169,33 +167,33 @@ export const areSameWidth = (foo: Matter.Body, bar: Matter.Body): boolean => {
 }
 
 
-// credit: https://github.com/processing/p5.js/issues/3767#issuecomment-502873792
-// Rotate image by 90 degrees clockwise
-export const rotateClockwise = (p: p5, src: p5.Image): p5.Image => {
+// // credit: https://github.com/processing/p5.js/issues/3767#issuecomment-502873792
+// // Rotate image by 90 degrees clockwise
+// export const rotateClockwise = (p: p5, src: p5.Image): p5.Image => {
 
-  const w = src.width;
-  const h = src.height;
-  const tgt = p.createImage(h, w); // flip w and h
+//   const w = src.width;
+//   const h = src.height;
+//   const tgt = p.createImage(h, w); // flip w and h
 
-  src.loadPixels();
-  tgt.loadPixels();
+//   src.loadPixels();
+//   tgt.loadPixels();
 
-  let indexr = 0;
-  for (let x = 0; x < w; x++) {
-    for (let y = h - 1; y >= 0; y--) {
-      let index = (x + y * w) * 4;
-      for (let i = 0; i < 4; i++) {
-        tgt.pixels[indexr + i] = src.pixels[index + i];
-      }
-      indexr += 4;
-    }
-  }
+//   let indexr = 0;
+//   for (let x = 0; x < w; x++) {
+//     for (let y = h - 1; y >= 0; y--) {
+//       let index = (x + y * w) * 4;
+//       for (let i = 0; i < 4; i++) {
+//         tgt.pixels[indexr + i] = src.pixels[index + i];
+//       }
+//       indexr += 4;
+//     }
+//   }
 
-  src.updatePixels();
-  tgt.updatePixels();
+//   src.updatePixels();
+//   tgt.updatePixels();
 
-  return tgt;
-}
+//   return tgt;
+// }
 
 // examples:
 //   argsort([100, 1, 10]) == [2, 0, 1]

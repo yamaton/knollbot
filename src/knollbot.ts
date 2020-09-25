@@ -1,5 +1,5 @@
 import Matter from "matter-js";
-import p5 from "p5";
+import * as PIXI from "pixi.js";
 
 import { WorldExtended } from "./exttypes";
 import { imgPaths, params } from "./config";
@@ -12,7 +12,7 @@ import * as align from "./alignment2";
 
 export namespace Knollbot {
 
-    export const run = (p: any) => {
+    export const run = () => {
 
         // create an engine and runner
         const engine = Matter.Engine.create();
@@ -199,58 +199,66 @@ export namespace Knollbot {
         };
 
 
-        // p5 preload that waits till done
-        var p5imgs: p5.Image[];
-        p.preload = () => {
+        const app = new PIXI.Application({
+            width: ScreenWidth,
+            height: ScreenHeight,
+        });
+        document.body.appendChild(app.view);
+        app.renderer.backgroundColor = 0x247c41;
+
+        const loader = new PIXI.Loader();
+        let sprites: PIXI.Sprite[];
+
+        // loader.add raises an error if duplicates exists
+        loader.add(utils.unique(imgPaths));
+        loader.load((loader) => {
+            sprites = imgPaths.map(p => new PIXI.Sprite(loader.resources[p].texture));
             setupWorld();
-            p5imgs = imgPaths.map(p.loadImage);
-        };
+            app.stage.addChild(...sprites);
+            app.ticker.add(gameLoop);
+        });
 
-        // p5 setup that runs in async
-        p.setup = () => {
-            p.createCanvas(ScreenWidth, ScreenHeight);
-        };
 
-        // p5 draw
-        p.draw = () => {
-            p.background('#247c41');
-            p.fill(0);
+        // pixi gameLoop
+        const gameLoop = () => {
             // draw blocks
-            for (let i in p5imgs) {
+            for (let i in imgPaths) {
                 // p.push();
+                const imgPath = imgPaths[i];
                 const block = blocks[i];
-                const img = p5imgs[i];
+                const sprite = sprites[i];
                 const w = utils.getWidth(block);
                 const h = utils.getHeight(block);
                 const x = Math.floor(block.position.x - w / 2);
                 const y = Math.floor(block.position.y - h / 2);
-                p.image(img, x, y);
-            }
-            // draw walls
-            for (let i = 0; i < 4; i++) {
-                const block = blocks[p5imgs.length + i];
-                const w = utils.getWidth(block);
-                const h = utils.getHeight(block);
-                const x = Math.floor(block.position.x - w / 2);
-                const y = Math.floor(block.position.y - h / 2);
-                p.noStroke();
-                p.rect(x, y, w, h);
+                sprite.x = x;
+                sprite.y = y;;
             }
 
-            if (world.displayLines) {
-                const boxes = blocks.slice(0, blocks.length - 4);
-                const attractorXs = align.getAttractorXs(boxes, world.alignmentForceRange);
-                for (let x of attractorXs) {
-                    p.stroke(params.colorLinesVertical);
-                    p.line(x, WallVisible, x, ScreenHeight - WallVisible);
-                }
+            // // draw walls
+            // for (let i = 0; i < 4; i++) {
+            //     const block = blocks[imgPaths.length + i];
+            //     const w = utils.getWidth(block);
+            //     const h = utils.getHeight(block);
+            //     const x = Math.floor(block.position.x - w / 2);
+            //     const y = Math.floor(block.position.y - h / 2);
+            //     p.rect(x, y, w, h);
+            // }
 
-                const attractorYs = align.getAttractorYs(boxes, world.alignmentForceRange);
-                for (let y of attractorYs) {
-                    p.stroke(params.colorLinesHorizontal);
-                    p.line(WallVisible, y, ScreenWidth - WallVisible, y);
-                }
-            }
+            // if (world.displayLines) {
+            //     const boxes = blocks.slice(0, blocks.length - 4);
+            //     const attractorXs = align.getAttractorXs(boxes, world.alignmentForceRange);
+            //     for (let x of attractorXs) {
+            //         p.stroke(params.colorLinesVertical);
+            //         p.line(x, WallVisible, x, ScreenHeight - WallVisible);
+            //     }
+
+            //     const attractorYs = align.getAttractorYs(boxes, world.alignmentForceRange);
+            //     for (let y of attractorYs) {
+            //         p.stroke(params.colorLinesHorizontal);
+            //         p.line(WallVisible, y, ScreenWidth - WallVisible, y);
+            //     }
+            // }
         };
 
         // main loop
@@ -301,36 +309,36 @@ export namespace Knollbot {
         });
 
 
-        // Rotate a block by double clicking
-        document.addEventListener('dblclick', () => {
-            console.log(`--- Double click at t=${counter} ---`);
-            // iterate over blocks except for walls
-            for (let i = 0; i < blocks.length - 4; i++) {
-                const b = blocks[i];
-                if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position)) {
-                    Matter.Body.rotate(b, Math.PI / 2);
-                    p5imgs[i] = utils.rotateClockwise(p, p5imgs[i]);
-                    break;
-                }
-            }
-        });
+        // // Rotate a block by double clicking
+        // document.addEventListener('dblclick', () => {
+        //     console.log(`--- Double click at t=${counter} ---`);
+        //     // iterate over blocks except for walls
+        //     for (let i = 0; i < blocks.length - 4; i++) {
+        //         const b = blocks[i];
+        //         if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position)) {
+        //             Matter.Body.rotate(b, Math.PI / 2);
+        //             sprites[i] = utils.rotateClockwise(p, sprites[i]);
+        //             break;
+        //         }
+        //     }
+        // });
 
 
-        // Rotate a block by touch rotation
-        document.addEventListener('touchmove', (e) => {
-            let touch = e.changedTouches.item(0);
-            let angleInDegrees = touch?.rotationAngle ?? 0;
-            console.log(`--- Touch rotation activated at t=${counter} ---`);
-            console.log(`    rotation angle = ${angleInDegrees} (deg)`);
-            // iterate over blocks except for walls
-            for (let i = 0; i < blocks.length - 4; i++) {
-                const b = blocks[i];
-                if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position) && angleInDegrees > 2) {
-                    Matter.Body.rotate(b, Math.PI / 2);
-                    p5imgs[i] = utils.rotateClockwise(p, p5imgs[i]);
-                    break;
-                }
-            }
-        });
+        // // Rotate a block by touch rotation
+        // document.addEventListener('touchmove', (e) => {
+        //     let touch = e.changedTouches.item(0);
+        //     let angleInDegrees = touch?.rotationAngle ?? 0;
+        //     console.log(`--- Touch rotation activated at t=${counter} ---`);
+        //     console.log(`    rotation angle = ${angleInDegrees} (deg)`);
+        //     // iterate over blocks except for walls
+        //     for (let i = 0; i < blocks.length - 4; i++) {
+        //         const b = blocks[i];
+        //         if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position) && angleInDegrees > 2) {
+        //             Matter.Body.rotate(b, Math.PI / 2);
+        //             sprites[i] = utils.rotateClockwise(p, sprites[i]);
+        //             break;
+        //         }
+        //     }
+        // });
     }
 }

@@ -40,7 +40,7 @@ export const imgPaths = imgNames.map(name => imgRoot + name);
 
 export const params = {
     // Body parameters
-    frictionAir: 0.08,
+    frictionAir: 0.12,
     friction: 0.003,
     wallFriction: 0.01,
 
@@ -50,8 +50,8 @@ export const params = {
 
     // Alignment force
     alignmentForceCoeff: 0.0010,    // in force/pixel
-    alignmentForceRange: 30,        // pixels
-    alignmentForceWallRange: 15,    // pixels
+    alignmentForceRange: 20,        // pixels
+    alignmentForceWallRange: 20,    // pixels
     alignmentForceOffset: 0.007,    // in force
 
     // AntiGravity force

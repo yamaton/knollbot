@@ -22,6 +22,9 @@ export namespace Knollbot {
         // enable force by default
         world.forceOn = true;
 
+        // enable poking by default
+        world.pokeEnabled = false;
+
         // disable gravity
         world.gravity.y = 0.0;
 
@@ -267,10 +270,9 @@ export namespace Knollbot {
                     align.applyAlignment(world, blocks);
                 }
 
-                if (counter % 10 == 9) {
-                    world.pokeScale *= world.pokeDecay;
+                if (world.pokeEnabled) {
+                    poke.applyRandomPokes(world, blocks);
                 }
-                poke.applyRandomPokes(world, blocks);
             }
         });
 
@@ -286,6 +288,15 @@ export namespace Knollbot {
             if (e.code === "KeyL") {
                 world.displayLines = !world.displayLines;
                 console.log(`Toggled displayLines: ${world.displayLines}`);
+            }
+
+            // Toggle random poking
+            if (e.code === "KeyP") {
+                world.pokeEnabled = !world.pokeEnabled;
+                if (world.pokeEnabled) {
+                    world.pokeScale = params.pokeScale;
+                }
+                console.log(`Toggled poking: ${world.pokeEnabled}`);
             }
         });
 

@@ -212,8 +212,9 @@ export namespace Knollbot {
         // loader.add raises an error if duplicates exists
         loader.add(utils.unique(imgPaths));
         loader.load((loader) => {
-            sprites = imgPaths.map(p => new PIXI.Sprite(loader.resources[p].texture));
             setupWorld();
+            sprites = imgPaths.map(p => new PIXI.Sprite(loader.resources[p].texture));
+            sprites.forEach(sprite => sprite.anchor.set(0.5));
             app.stage.addChild(...sprites);
             app.ticker.add(gameLoop);
         });
@@ -223,16 +224,10 @@ export namespace Knollbot {
         const gameLoop = () => {
             // draw blocks
             for (let i in imgPaths) {
-                // p.push();
-                const imgPath = imgPaths[i];
-                const block = blocks[i];
                 const sprite = sprites[i];
-                const w = utils.getWidth(block);
-                const h = utils.getHeight(block);
-                const x = Math.floor(block.position.x - w / 2);
-                const y = Math.floor(block.position.y - h / 2);
-                sprite.x = x;
-                sprite.y = y;;
+                const block = blocks[i];
+                sprite.x = block.position.x;
+                sprite.y = block.position.y;
             }
 
             // // draw walls
@@ -309,19 +304,20 @@ export namespace Knollbot {
         });
 
 
-        // // Rotate a block by double clicking
-        // document.addEventListener('dblclick', () => {
-        //     console.log(`--- Double click at t=${counter} ---`);
-        //     // iterate over blocks except for walls
-        //     for (let i = 0; i < blocks.length - 4; i++) {
-        //         const b = blocks[i];
-        //         if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position)) {
-        //             Matter.Body.rotate(b, Math.PI / 2);
-        //             sprites[i] = utils.rotateClockwise(p, sprites[i]);
-        //             break;
-        //         }
-        //     }
-        // });
+        // Rotate a block by double clicking
+        document.addEventListener('dblclick', () => {
+            console.log(`--- Double click at t=${counter} ---`);
+            // iterate over blocks except for walls
+            for (let i = 0; i < blocks.length - 4; i++) {
+                const b = blocks[i];
+                if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position)) {
+                    Matter.Body.rotate(b, Math.PI / 2);
+                    const sprite = sprites[i];
+                    sprite.angle += 90;
+                    break;
+                }
+            }
+        });
 
 
         // // Rotate a block by touch rotation

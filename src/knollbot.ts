@@ -249,6 +249,32 @@ export namespace Knollbot {
 
         // pixi gameLoop
         const gameLoop = () => {
+            // draw alignment lines
+            if (world.displayLines) {
+                if (app.stage.children.length > sprites.length) {
+                    app.stage.removeChildren(sprites.length);
+                }
+                const boxes = blocks.slice(0, blocks.length - 4);
+
+                const attractorXs = align.getAttractorXs(boxes, world.alignmentForceRange);
+                for (let x of attractorXs) {
+                    const line = new PIXI.Graphics();
+                    line.lineStyle(1, params.colorLinesVertical);
+                    line.moveTo(x, 0);
+                    line.lineTo(x, ScreenHeight);
+                    app.stage.addChild(line);
+                }
+
+                const attractorYs = align.getAttractorYs(boxes, world.alignmentForceRange);
+                for (let y of attractorYs) {
+                    const line = new PIXI.Graphics();
+                    line.lineStyle(1, params.colorLinesHorizontal);
+                    line.moveTo(0, y);
+                    line.lineTo(ScreenWidth, y);
+                    app.stage.addChild(line);
+                }
+            }
+
             // draw blocks
             for (let i in imgPaths) {
                 const sprite = sprites[i];
@@ -256,21 +282,6 @@ export namespace Knollbot {
                 sprite.x = block.position.x;
                 sprite.y = block.position.y;
             }
-
-            // if (world.displayLines) {
-            //     const boxes = blocks.slice(0, blocks.length - 4);
-            //     const attractorXs = align.getAttractorXs(boxes, world.alignmentForceRange);
-            //     for (let x of attractorXs) {
-            //         p.stroke(params.colorLinesVertical);
-            //         p.line(x, WallVisible, x, ScreenHeight - WallVisible);
-            //     }
-
-            //     const attractorYs = align.getAttractorYs(boxes, world.alignmentForceRange);
-            //     for (let y of attractorYs) {
-            //         p.stroke(params.colorLinesHorizontal);
-            //         p.line(WallVisible, y, ScreenWidth - WallVisible, y);
-            //     }
-            // }
         };
 
         // main loop
@@ -306,6 +317,9 @@ export namespace Knollbot {
 
             // Toggle alignment lines with L key
             if (e.code === "KeyL") {
+                if (world.displayLines && app.stage.children.length > sprites.length) {
+                    app.stage.removeChildren(sprites.length);
+                }
                 world.displayLines = !world.displayLines;
                 console.log(`Toggled displayLines: ${world.displayLines}`);
             }
@@ -337,21 +351,5 @@ export namespace Knollbot {
         });
 
 
-        // // Rotate a block by touch rotation
-        // document.addEventListener('touchmove', (e) => {
-        //     let touch = e.changedTouches.item(0);
-        //     let angleInDegrees = touch?.rotationAngle ?? 0;
-        //     console.log(`--- Touch rotation activated at t=${counter} ---`);
-        //     console.log(`    rotation angle = ${angleInDegrees} (deg)`);
-        //     // iterate over blocks except for walls
-        //     for (let i = 0; i < blocks.length - 4; i++) {
-        //         const b = blocks[i];
-        //         if (!b.isStatic && Matter.Bounds.contains(b.bounds, mouse.position) && angleInDegrees > 2) {
-        //             Matter.Body.rotate(b, Math.PI / 2);
-        //             sprites[i] = utils.rotateClockwise(p, sprites[i]);
-        //             break;
-        //         }
-        //     }
-        // });
     }
 }

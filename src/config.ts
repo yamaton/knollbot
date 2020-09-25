@@ -62,7 +62,7 @@ export const params = {
     groupingCoeff: 400,
 
     // Alignment line colors
-    colorLinesVertical: '#EF6B22',
-    colorLinesHorizontal: '#F29089',
+    colorLinesVertical: 0xEF6B22,
+    colorLinesHorizontal: 0xEF6B22,
 
 }

@@ -225,7 +225,7 @@ export const undoSortBy = (xs: number[], ref: number[]): number[] => {
 }
 
 
-export const unique = (xs: number[]): number[] => {
+export const uniqueNums = (xs: number[]): number[] => {
   xs.sort((a, b) => a - b);
   let res = Array<number>();
   let prev = Number.MIN_SAFE_INTEGER;
@@ -254,4 +254,18 @@ export const tally = (xs: number[]): number[] => {
   }
 
   return xs.map(getCount);
+}
+
+
+export const unique = <T>(xs: T[]): T[] => {
+  xs.sort();
+  let res = Array<T>();
+  let prev = undefined;
+  for (let x of xs) {
+    if (x !== prev) {
+      res.push(x);
+      prev = x;
+    }
+  }
+  return res;
 }

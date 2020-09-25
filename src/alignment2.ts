@@ -1,6 +1,6 @@
 import Matter from "matter-js";
 import { bisect, bisectLeft } from "./binarySearch";
-import { mean, undoSortBy, min, max, unique, tally } from "./utils";
+import { mean, undoSortBy, min, max, uniqueNums, tally } from "./utils";
 import { WorldExtended } from "./exttypes";
 
 export const fixedRadius1dClustering = (xs: number[], r: number): number[] => {
@@ -84,7 +84,7 @@ const getAttractorsMeta = (boxes: Matter.Body[], radius: number, getEdges: ((blo
   xs = getEdges(boxes);
   xs = fixedRadius1dClustering(xs, radius);
   xs = xs.filter(x => (x !== undefined)).map(Math.round).sort((a, b) => a - b);
-  xs = unique(xs);
+  xs = uniqueNums(xs);
   return xs;
 }
 

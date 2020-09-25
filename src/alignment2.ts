@@ -114,7 +114,7 @@ const applyBoxesAlignmentX = (world: WorldExtended, boxes: Matter.Body[]) => {
     const tgt = box.vertices.filter(v => v.x == edges[idx])[0];
     const sign = (tgt.x > srcX) ? -1 : 1;
     const dist = Math.abs(tgt.x - srcX);
-    const forceX = sign * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
+    const forceX = sign * attrScore[idx] / 2 * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
     Matter.Body.applyForce(box, tgt, { x: forceX, y: 0 });
   }
 }
@@ -137,7 +137,7 @@ const applyBoxesAlignmentY = (world: WorldExtended, boxes: Matter.Body[]) => {
     const tgt = box.vertices.filter(v => v.y == edges[idx])[0];
     const sign = (tgt.y > srcY) ? -1 : 1;
     const dist = Math.abs(tgt.y - srcY);
-    const forceY = sign * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
+    const forceY = sign * attrScore[idx] / 2 * (world.alignmentForceCoeff * dist + world.alignmentForceOffset);
     Matter.Body.applyForce(box, tgt, { x: 0, y: forceY });
   }
 }

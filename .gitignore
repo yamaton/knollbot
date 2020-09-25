@@ -116,7 +116,6 @@ dist
 .pnp.*
 
 
-
 # local images for reference
 _images/
 _ref/
@@ -124,3 +123,4 @@ _ref/
 # ignore during development
 built/
 
+.vscode/settings.json

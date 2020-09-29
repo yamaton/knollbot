@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-patch ./node_modules/@types/matter-js/index.d.ts < ./index.d.ts.patch
+
+BASEDIR="$(dirname "$(readlink -f "$0")")"
+readonly BASEDIR
+patch "$BASEDIR"/node_modules/@types/matter-js/index.d.ts < ./index.d.ts.patch

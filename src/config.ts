@@ -40,7 +40,7 @@ export const imgPaths = imgNames.map(name => imgRoot + name);
 
 export const params = {
     // Body parameters
-    frictionAir: 0.12,
+    frictionAir: 0.02,
     friction: 0.003,
     wallFriction: 0.01,
 
@@ -49,10 +49,10 @@ export const params = {
     pokeDecay: 0.94,  // multiplier after 10 counts
 
     // Alignment force
-    alignmentForceCoeff: 0.0010,    // in force/pixel
+    alignmentForceCoeff: 0.0015,    // in force/pixel
     alignmentForceRange: 20,        // pixels
     alignmentForceWallRange: 20,    // pixels
-    alignmentForceOffset: 0.007,    // in force
+    alignmentForceOffset: 0.0,    // in force
 
     // AntiGravity force
     repulsionCoeff: 100,

@@ -29,7 +29,8 @@
   "scripts": {
     "test": "mocha -r ts-node/register test/*.ts",
     "build": "webpack",
-    "start:dev": "webpack-dev-server"
+    "start:dev": "webpack-dev-server",
+    "build:prod": "webpack --mode production"
   },
   "repository": {
     "type": "git",

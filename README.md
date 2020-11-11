@@ -31,9 +31,6 @@ cd knollbot
 npm install --save-dev
 npm install
 
-# apply a patch to @types/matter-js 0.14.5
-./apply_patch.sh
-
 # Run webpack dev server
 npm run start:dev
 

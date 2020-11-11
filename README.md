@@ -8,9 +8,9 @@
 
 Interactive demo: https://yamaton.github.io/knollbot
 
-* Double click: Rotate a block
-* L key: Toggle alignment lines
-* P key: Toggle random poking
+* Double click on a block: Rotate the block
+* L key: Toggle alignment force
+* P key: Toggle random poking force
 
 
 ## What's Knollbot and knolling?
@@ -28,10 +28,10 @@ git clone https://github.com/yamaton/knollbot.git
 cd knollbot
 
 # install node packages
-npm install --save-dev
 npm install
 
 # Run webpack dev server
+# For release build, run `npm run build:prod` instead
 npm run start:dev
 
 # Open browser http://localhost:9000

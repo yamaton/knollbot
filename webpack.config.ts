@@ -10,6 +10,7 @@ module.exports = {
   devtool: 'inline-source-map',
   devServer: {
     contentBase: path.resolve(__dirname, 'docs'),
+    compress: true,
     port: 9000,
   },
   module: {

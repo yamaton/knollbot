@@ -1,7 +1,6 @@
-import * as path from 'path';
-import * as webpack from 'webpack';
+import path from 'path';
 
-const config: webpack.Configuration = {
+module.exports = {
   mode: 'development',  // 'development' or 'production'
   entry: './src/index.ts',
   output: {
@@ -30,5 +29,3 @@ const config: webpack.Configuration = {
     extensions: ['.tsx', '.ts', '.js'],
   },
 };
-
-export default config;
